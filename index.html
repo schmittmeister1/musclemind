@@ -291,7 +291,7 @@
       </div>
       <h1>Muscle<span>Mind</span></h1>
     </div>
-    <div class="tagline">Origin · Insertion · Innervation · Action — study tools for physical therapy students</div>
+    <div class="tagline">Origin · Insertion · Innervation · Action</div>
     <div class="tabs" id="tabs">
       <button class="tab on" data-view="flashcards" onclick="showView('flashcards')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
@@ -1277,52 +1277,80 @@ function buildQLenChips(){ const el=document.getElementById('qLenChips'); el.inn
     el.appendChild(c); }); }
 function setAllQ(on){ qSel=on?new Set(MUSCLES.map(m=>m.name)):new Set();
   document.querySelectorAll('#qMuscles .m-chip').forEach(c=>c.classList.toggle('on',on)); updateQNote(); }
-function updateQNote(){ const sel=MUSCLES.filter(m=>qSel.has(m.name)); const pool=sel.length*QUESTIONS_PER_MUSCLE;
+function updateQNote(){ const sel=MUSCLES.filter(m=>qSel.has(m.name)); const pool=sel.length?buildQuestionsFor(sel).length:0;
   const ask=Math.min(qLen,pool); const lenTxt=qLen>=9999?('all '+pool):ask;
   document.getElementById('qNote').innerHTML=`Pool: <b>${pool}</b> question${pool!==1?'s':''} from <b>${sel.length}</b> muscle${sel.length!==1?'s':''} · this session asks <b>${lenTxt}</b>`;
   document.getElementById('qStart').disabled=(sel.length===0); }
 function qScreen(s){ document.getElementById('q-setup').style.display=s==='setup'?'block':'none';
   document.getElementById('q-run').classList.toggle('on',s==='run'); document.getElementById('q-done').classList.toggle('on',s==='done'); window.scrollTo({top:0,behavior:'smooth'}); }
 
-/* ---- Question generation (structurally single-correct) ---- */
-const QUESTIONS_PER_MUSCLE=4;
-const MOVE_WORDS=['flex','extend','abduct','adduct','rotat','plantarflex','dorsiflex','evert','invert','elevat','depress','protract','retract','supinat','pronat','oppos','stabiliz','inspir','compress','elevate'];
-function actionKeywords(s){ s=s.toLowerCase(); return MOVE_WORDS.filter(w=>s.includes(w)); }
-function distractPool(key,region){ // prefer same-region values, fall back to all
-  const same=[...new Set(MUSCLES.filter(m=>m.region===region).map(m=>m[key]))];
-  const all=[...new Set(MUSCLES.map(m=>m[key]))];
-  return {same,all};
+/* ---- Question generation (harder; distractors drawn from the closest anatomy) ---- */
+const MOVE_WORDS=['flex','extend','abduct','adduct','rotat','plantarflex','dorsiflex','evert','invert','elevat','depress','protract','retract','supinat','pronat','oppos','stabiliz','inspir','compress'];
+function actionKeywords(s){ s=(s||'').toLowerCase(); return MOVE_WORDS.filter(w=>s.includes(w)); }
+function uniqVals(list,key){ return [...new Set(list.map(m=>m[key]))]; }
+/* pull n distractor values, tier by tier (closest anatomy first) */
+function tieredValues(tiers,correct,n,actionSafe){
+  const ck=actionSafe?actionKeywords(correct):null; const seen=new Set([correct]); const out=[];
+  for(const tier of tiers){ for(const v of shuffle(tier)){ if(out.length>=n) break;
+    if(!v||seen.has(v)) continue; if(actionSafe && actionKeywords(v).some(w=>ck.includes(w))) continue; seen.add(v); out.push(v); }
+    if(out.length>=n) break; }
+  return out;
 }
-function pickDistract(key,correct,region,n,actionSafe){
-  const {same,all}=distractPool(key,region);
-  let cands=same.filter(v=>v&&v!==correct);
-  if(actionSafe){ const ck=actionKeywords(correct); cands=cands.filter(v=>actionKeywords(v).every(w=>!ck.includes(w))); }
-  if(cands.length<n){ let extra=all.filter(v=>v&&v!==correct&&!cands.includes(v));
-    if(actionSafe){ const ck=actionKeywords(correct); extra=extra.filter(v=>actionKeywords(v).every(w=>!ck.includes(w))); }
-    cands=cands.concat(extra); }
-  if(cands.length<n){ // last resort: any distinct value
-    let extra=all.filter(v=>v&&v!==correct&&!cands.includes(v)); cands=cands.concat(extra); }
-  return sample([...new Set(cands)],n);
+function tieredNames(tiers,correctName,n){
+  const seen=new Set([correctName]); const out=[];
+  for(const tier of tiers){ for(const nm of shuffle(tier)){ if(out.length>=n) break; if(!nm||seen.has(nm)) continue; seen.add(nm); out.push(nm); }
+    if(out.length>=n) break; }
+  return out;
 }
 function makeQ(stem,correct,distr,m,type,rationale){
-  const opts=shuffle([correct,...distr]); const ci=opts.indexOf(correct);
+  if(!distr||distr.length<3) return null;
+  const opts=shuffle([correct,...distr.slice(0,3)]); const ci=opts.indexOf(correct);
   return {stem,opts,ci,muscle:m.name,region:m.region,type,rationale};
 }
 function buildQuestionsFor(muscles){
-  const q=[];
+  const q=[]; const push=x=>{ if(x) q.push(x); };
+  const grp=(key,m)=>uniqVals(MUSCLES.filter(x=>x.group===m.group&&x.name!==m.name),key);
+  const reg=(key,m)=>uniqVals(MUSCLES.filter(x=>x.region===m.region&&x.name!==m.name),key);
+  const all=(key,m)=>uniqVals(MUSCLES.filter(x=>x.name!==m.name),key);
   muscles.forEach(m=>{
-    q.push(makeQ(`A PTA is reviewing a patient with a suspected peripheral nerve lesion. Which nerve provides motor innervation to the ${m.name}?`,
-      m.innervation, pickDistract('innervation',m.innervation,m.region,3,false), m, 'Innervation',
+    const ck=actionKeywords(m.action);
+    /* 1. Innervation — distractors are other nerves of the same limb (commonly confused) */
+    push(makeQ(`A PTA suspects a peripheral nerve lesion. The ${m.name} receives its motor innervation from which nerve?`,
+      m.innervation, tieredValues([reg('innervation',m),all('innervation',m)],m.innervation,3,false), m,'Innervation',
       `The ${m.name} is innervated by the ${m.innervation}.`));
-    q.push(makeQ(`A patient demonstrates isolated weakness of the ${m.name}. Which action is most likely impaired?`,
-      m.action, pickDistract('action',m.action,m.region,3,true), m, 'Action',
-      `Action of the ${m.name}: ${m.action}.`));
-    q.push(makeQ(`During an anatomy review, a PTA student must identify the proximal attachment (origin) of the ${m.name}. Which is correct?`,
-      m.origin, pickDistract('origin',m.origin,m.region,3,false), m, 'Origin',
+    /* 2. Origin — distractors are nearby attachments from muscles in the SAME group */
+    push(makeQ(`Which of the following is the proximal attachment (origin) of the ${m.name}?`,
+      m.origin, tieredValues([grp('origin',m),reg('origin',m),all('origin',m)],m.origin,3,false), m,'Origin',
       `The ${m.name} originates from ${m.origin}.`));
-    q.push(makeQ(`Which of the following best describes the distal attachment (insertion) of the ${m.name}?`,
-      m.insertion, pickDistract('insertion',m.insertion,m.region,3,false), m, 'Insertion',
+    /* 3. Insertion — nearby attachments from the SAME group */
+    push(makeQ(`At which site does the ${m.name} attach distally (insertion)?`,
+      m.insertion, tieredValues([grp('insertion',m),reg('insertion',m),all('insertion',m)],m.insertion,3,false), m,'Insertion',
       `The ${m.name} inserts on ${m.insertion}.`));
+    /* 4. Action — distractors are other movements of the same region (kept truly wrong) */
+    push(makeQ(`Isolated weakness of the ${m.name} would most impair which action?`,
+      m.action, tieredValues([reg('action',m),all('action',m)],m.action,3,true), m,'Action',
+      `Action of the ${m.name}: ${m.action}.`));
+    /* 5. Nerve injury -> muscle (two-step: must know each option's innervation) */
+    const regN=MUSCLES.filter(x=>x.region===m.region&&x.name!==m.name&&x.innervation!==m.innervation).map(x=>x.name);
+    const allN=MUSCLES.filter(x=>x.name!==m.name&&x.innervation!==m.innervation).map(x=>x.name);
+    push(makeQ(`A patient sustains an isolated injury to the ${m.innervation}. Which muscle would demonstrate weakness?`,
+      m.name, tieredNames([regN,allN],m.name,3), m,'Nerve injury',
+      `The ${m.name} is supplied by the ${m.innervation}; the other options are innervated by different nerves.`));
+    /* 6. Action -> prime mover (distractors do NOT share the movement) */
+    const regA=MUSCLES.filter(x=>x.region===m.region&&x.name!==m.name&&actionKeywords(x.action).every(w=>!ck.includes(w))).map(x=>x.name);
+    const allA=MUSCLES.filter(x=>x.name!==m.name&&actionKeywords(x.action).every(w=>!ck.includes(w))).map(x=>x.name);
+    push(makeQ(`A patient cannot perform the following: ${m.action.replace(/\.$/,'')}. Which muscle is the prime mover?`,
+      m.name, tieredNames([regA,allA],m.name,3), m,'Clinical',
+      `${m.name} performs: ${m.action}.`));
+    /* 7. Shared innervation (only when another muscle truly shares the nerve) */
+    const shares=MUSCLES.filter(x=>x.name!==m.name&&x.innervation===m.innervation).map(x=>x.name);
+    if(shares.length){
+      const correctShare=shares[Math.floor(Math.random()*shares.length)];
+      const diffN=MUSCLES.filter(x=>x.name!==m.name&&x.name!==correctShare&&x.innervation!==m.innervation).map(x=>x.name);
+      push(makeQ(`Which muscle is innervated by the same nerve as the ${m.name}?`,
+        correctShare, tieredNames([diffN],correctShare,3), m,'Innervation',
+        `Both the ${m.name} and ${correctShare} are innervated by the ${m.innervation}.`));
+    }
   });
   return q;
 }
