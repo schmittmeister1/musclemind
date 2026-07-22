@@ -1185,9 +1185,10 @@ function buildFactorChips(){
     c.innerHTML=`<span class="tick">${CHECK}</span>${f.label}`;
     c.onclick=()=>{toggleSet(fcFactors,f.key);c.classList.toggle('on');updateFCNote();}; el.appendChild(c); });
 }
-function setAllFactors(on){ fcFactors=on?new Set(FACTORS.map(f=>f.key)):new Set();
+/* mutate the sets in place — never reassign, or the picker checkboxes desync from them */
+function setAllFactors(on){ fcFactors.clear(); if(on) FACTORS.forEach(f=>fcFactors.add(f.key));
   document.querySelectorAll('#factorChips .chip').forEach(c=>c.classList.toggle('on',on)); updateFCNote(); }
-function setAllFC(on){ fcSel=on?new Set(MUSCLES.map(m=>m.name)):new Set();
+function setAllFC(on){ fcSel.clear(); if(on) MUSCLES.forEach(m=>fcSel.add(m.name));
   document.querySelectorAll('#fcMuscles .m-chip').forEach(c=>c.classList.toggle('on',on)); updateFCNote(); }
 function setDirection(d,el){ fcDir=d; document.querySelectorAll('#directionRow .radio-card').forEach(c=>c.classList.remove('on')); el.classList.add('on'); updateFCNote(); }
 function updateFCNote(){ const m=fcSel.size,f=fcFactors.size,mult=fcDir==='both'?2:1;
@@ -1275,12 +1276,12 @@ function buildQLenChips(){ const el=document.getElementById('qLenChips'); el.inn
     const c=document.createElement('div'); c.className='chip alt'+(v===qLen?' on':''); c.textContent=lbl;
     c.onclick=()=>{qLen=v; document.querySelectorAll('#qLenChips .chip').forEach(x=>x.classList.remove('on')); c.classList.add('on'); updateQNote();};
     el.appendChild(c); }); }
-function setAllQ(on){ qSel=on?new Set(MUSCLES.map(m=>m.name)):new Set();
+function setAllQ(on){ qSel.clear(); if(on) MUSCLES.forEach(m=>qSel.add(m.name));
   document.querySelectorAll('#qMuscles .m-chip').forEach(c=>c.classList.toggle('on',on)); updateQNote(); }
 function updateQNote(){ const sel=MUSCLES.filter(m=>qSel.has(m.name)); const pool=sel.length?buildQuestionsFor(sel).length:0;
   const ask=Math.min(qLen,pool); const lenTxt=qLen>=9999?('all '+pool):ask;
   document.getElementById('qNote').innerHTML=`Pool: <b>${pool}</b> question${pool!==1?'s':''} from <b>${sel.length}</b> muscle${sel.length!==1?'s':''} · this session asks <b>${lenTxt}</b>`;
-  document.getElementById('qStart').disabled=(sel.length===0); }
+  document.getElementById('qStart').disabled=(sel.length===0||pool===0); }
 function qScreen(s){ document.getElementById('q-setup').style.display=s==='setup'?'block':'none';
   document.getElementById('q-run').classList.toggle('on',s==='run'); document.getElementById('q-done').classList.toggle('on',s==='done'); window.scrollTo({top:0,behavior:'smooth'}); }
 
@@ -1369,9 +1370,10 @@ function nerveFamily(s){ s=(s||'').toLowerCase();
 const NERVE_LABEL={tibial:'tibial nerve','deep fibular':'deep fibular (deep peroneal) nerve','superficial fibular':'superficial fibular (peroneal) nerve',femoral:'femoral nerve',obturator:'obturator nerve','superior gluteal':'superior gluteal nerve','inferior gluteal':'inferior gluteal nerve',sciatic:'sciatic nerve',axillary:'axillary nerve',suprascapular:'suprascapular nerve',musculocutaneous:'musculocutaneous nerve',radial:'radial nerve',median:'median nerve',ulnar:'ulnar nerve',accessory:'accessory nerve (CN XI)','long thoracic':'long thoracic nerve',thoracodorsal:'thoracodorsal nerve','dorsal scapular':'dorsal scapular nerve',phrenic:'phrenic nerve',trigeminal:'trigeminal nerve (CN V3)'};
 function buildQuestionsFor(muscles){
   const q=[]; const push=x=>{ if(x) q.push(x); };
-  const grp=(key,m)=>uniqVals(MUSCLES.filter(x=>x.group===m.group&&x.name!==m.name),key);
-  const reg=(key,m)=>uniqVals(MUSCLES.filter(x=>x.region===m.region&&x.name!==m.name),key);
-  const all=(key,m)=>uniqVals(MUSCLES.filter(x=>x.name!==m.name),key);
+  /* distractors are drawn ONLY from the selected muscles ('muscles'), never the full list */
+  const grp=(key,m)=>uniqVals(muscles.filter(x=>x.group===m.group&&x.name!==m.name),key);
+  const reg=(key,m)=>uniqVals(muscles.filter(x=>x.region===m.region&&x.name!==m.name),key);
+  const all=(key,m)=>uniqVals(muscles.filter(x=>x.name!==m.name),key);
   muscles.forEach(m=>{
     const ck=actionKeywords(m.action);
     /* 1. Innervation — distractors are other nerves of the same limb (commonly confused) */
@@ -1391,22 +1393,22 @@ function buildQuestionsFor(muscles){
       m.action, tieredValues([reg('action',m),all('action',m)],m.action,3,true), m,'Action',
       `Action of the ${m.name}: ${m.action}.`));
     /* 5. Nerve injury -> muscle (two-step: must know each option's innervation) */
-    const regN=MUSCLES.filter(x=>x.region===m.region&&x.name!==m.name&&x.innervation!==m.innervation).map(x=>x.name);
-    const allN=MUSCLES.filter(x=>x.name!==m.name&&x.innervation!==m.innervation).map(x=>x.name);
+    const regN=muscles.filter(x=>x.region===m.region&&x.name!==m.name&&x.innervation!==m.innervation).map(x=>x.name);
+    const allN=muscles.filter(x=>x.name!==m.name&&x.innervation!==m.innervation).map(x=>x.name);
     push(makeQ(`A patient sustains an isolated injury to the ${m.innervation}. Which muscle would demonstrate weakness?`,
       m.name, tieredNames([regN,allN],m.name,3), m,'Nerve injury',
       `The ${m.name} is supplied by the ${m.innervation}; the other options are innervated by different nerves.`));
     /* 6. Action -> prime mover (distractors do NOT share the movement) */
-    const regA=MUSCLES.filter(x=>x.region===m.region&&x.name!==m.name&&actionKeywords(x.action).every(w=>!ck.includes(w))).map(x=>x.name);
-    const allA=MUSCLES.filter(x=>x.name!==m.name&&actionKeywords(x.action).every(w=>!ck.includes(w))).map(x=>x.name);
+    const regA=muscles.filter(x=>x.region===m.region&&x.name!==m.name&&actionKeywords(x.action).every(w=>!ck.includes(w))).map(x=>x.name);
+    const allA=muscles.filter(x=>x.name!==m.name&&actionKeywords(x.action).every(w=>!ck.includes(w))).map(x=>x.name);
     push(makeQ(`A patient cannot perform the following: ${m.action.replace(/\.$/,'')}. Which muscle is the prime mover?`,
       m.name, tieredNames([regA,allA],m.name,3), m,'Clinical',
       `${m.name} performs: ${m.action}.`));
     /* 7. Shared innervation (only when another muscle truly shares the nerve) */
-    const shares=MUSCLES.filter(x=>x.name!==m.name&&x.innervation===m.innervation).map(x=>x.name);
+    const shares=muscles.filter(x=>x.name!==m.name&&x.innervation===m.innervation).map(x=>x.name);
     if(shares.length){
       const correctShare=shares[Math.floor(Math.random()*shares.length)];
-      const diffN=MUSCLES.filter(x=>x.name!==m.name&&x.name!==correctShare&&x.innervation!==m.innervation).map(x=>x.name);
+      const diffN=muscles.filter(x=>x.name!==m.name&&x.name!==correctShare&&x.innervation!==m.innervation).map(x=>x.name);
       push(makeQ(`Which muscle is innervated by the same nerve as the ${m.name}?`,
         correctShare, tieredNames([diffN],correctShare,3), m,'Innervation',
         `Both the ${m.name} and ${correctShare} are innervated by the ${m.innervation}.`));
@@ -1426,7 +1428,7 @@ function buildQuestionsFor(muscles){
   return q;
 }
 function startQuiz(){ const ms=MUSCLES.filter(m=>qSel.has(m.name)); if(!ms.length) return;
-  let pool=shuffle(buildQuestionsFor(ms)); if(qLen<9999) pool=pool.slice(0,qLen);
+  let pool=shuffle(buildQuestionsFor(ms)); if(!pool.length) return; if(qLen<9999) pool=pool.slice(0,qLen);
   qDeck=pool; qIdx=0;qCorr=0;qWrong=0;qMissed=[]; qScreen('run'); renderQ(); }
 function retryMissedQ(){ if(!qMissed.length){startQuiz();return;} qDeck=shuffle(qMissed.map(x=>x.q)); qIdx=0;qCorr=0;qWrong=0;qMissed=[]; qScreen('run'); renderQ(); }
 const LETTERS=['A','B','C','D','E'];
