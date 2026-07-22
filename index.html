@@ -191,8 +191,21 @@
   .opt.wrong{border-color:var(--red);background:#fceff2}
   .opt.wrong .ltr{background:var(--red);color:#fff}
   .rationale{margin-top:18px;border-left:3px solid var(--brand-2);background:#f2fbfa;border-radius:0 10px 10px 0;
-    padding:12px 16px;font-size:.9rem;color:#245049;display:none}
+    padding:14px 16px;font-size:.9rem;color:#245049;display:none}
   .rationale.show{display:block}
+  .rationale .rat-lead{margin-bottom:11px;line-height:1.45}
+  .rationale .rat-lead b{color:#0f766e}
+  .rationale .rat-list{display:flex;flex-direction:column;gap:7px}
+  .rationale .ri{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 11px}
+  .rationale .ri .ril{width:22px;height:22px;border-radius:6px;background:#eef1fb;color:var(--brand-ink);font-weight:800;font-size:.74rem;display:grid;place-items:center;flex:0 0 auto}
+  .rationale .ri .ritag{font-size:.58rem;text-transform:uppercase;letter-spacing:.6px;font-weight:800;color:var(--muted);flex:0 0 auto;min-width:56px;padding-top:3px}
+  .rationale .ri .ritext{flex:1;font-size:.85rem;color:#2b3550;line-height:1.4}
+  .rationale .ri.good{border-color:#bfe6d3;background:#f0faf5}
+  .rationale .ri.good .ril{background:var(--green);color:#fff}
+  .rationale .ri.good .ritag{color:var(--green-2)}
+  .rationale .ri.chosen{border-color:#f2c9d3;background:#fdf1f4}
+  .rationale .ri.chosen .ril{background:var(--red);color:#fff}
+  .rationale .ri.chosen .ritag{color:var(--red-2)}
   .rationale b{color:#0f766e}
   .qnext-row{display:flex;justify-content:flex-end;margin-top:18px}
 
@@ -341,7 +354,7 @@
 
     <div class="run" id="fc-run">
       <div class="run-top">
-        <button class="btn-ghost" onclick="fcScreen('setup')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Settings</button>
+        <button class="btn-ghost" onclick="fcScreen('setup')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Home</button>
         <div class="stats">
           <div class="stat"><div class="n" id="fcPos">0/0</div><div class="l">Card</div></div>
           <div class="stat correct"><div class="n" id="fcCorr">0</div><div class="l">Correct</div></div>
@@ -409,7 +422,7 @@
 
     <div class="run" id="q-run">
       <div class="run-top">
-        <button class="btn-ghost" onclick="qScreen('setup')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Settings</button>
+        <button class="btn-ghost" onclick="qScreen('setup')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Home</button>
         <div class="stats">
           <div class="stat"><div class="n" id="qPos">0/0</div><div class="l">Question</div></div>
           <div class="stat correct"><div class="n" id="qCorr">0</div><div class="l">Correct</div></div>
@@ -1303,10 +1316,11 @@ function tieredNames(tiers,correctName,n){
     if(out.length>=n) break; }
   return out;
 }
-function makeQ(stem,correct,distr,m,type,rationale){
+function makeQ(stem,correct,distr,m,type,headline,explFn){
   if(!distr||distr.length<3) return null;
   const opts=shuffle([correct,...distr.slice(0,3)]); const ci=opts.indexOf(correct);
-  return {stem,opts,ci,muscle:m.name,region:m.region,type,rationale};
+  const expl={}; opts.forEach(o=>{ expl[o]=explFn?explFn(o,o===correct):''; });
+  return {stem,opts,ci,muscle:m.name,region:m.region,type,headline,expl};
 }
 /* ---- Functional-movement knowledge base (for applied NPTE-style items) ---- */
 const FUNCTIONAL=[
@@ -1370,48 +1384,65 @@ function nerveFamily(s){ s=(s||'').toLowerCase();
 const NERVE_LABEL={tibial:'tibial nerve','deep fibular':'deep fibular (deep peroneal) nerve','superficial fibular':'superficial fibular (peroneal) nerve',femoral:'femoral nerve',obturator:'obturator nerve','superior gluteal':'superior gluteal nerve','inferior gluteal':'inferior gluteal nerve',sciatic:'sciatic nerve',axillary:'axillary nerve',suprascapular:'suprascapular nerve',musculocutaneous:'musculocutaneous nerve',radial:'radial nerve',median:'median nerve',ulnar:'ulnar nerve',accessory:'accessory nerve (CN XI)','long thoracic':'long thoracic nerve',thoracodorsal:'thoracodorsal nerve','dorsal scapular':'dorsal scapular nerve',phrenic:'phrenic nerve',trigeminal:'trigeminal nerve (CN V3)'};
 function buildQuestionsFor(muscles){
   const q=[]; const push=x=>{ if(x) q.push(x); };
+  const byName={}; MUSCLES.forEach(x=>byName[x.name]=x);
+  const lc=s=>s?s.charAt(0).toLowerCase()+s.slice(1):s;
   /* distractors are drawn ONLY from the selected muscles ('muscles'), never the full list */
   const grp=(key,m)=>uniqVals(muscles.filter(x=>x.group===m.group&&x.name!==m.name),key);
   const reg=(key,m)=>uniqVals(muscles.filter(x=>x.region===m.region&&x.name!==m.name),key);
   const all=(key,m)=>uniqVals(muscles.filter(x=>x.name!==m.name),key);
+  const ownerOf=(key,val,self)=>{ const o=muscles.find(x=>x[key]===val&&x.name!==self)||MUSCLES.find(x=>x[key]===val&&x.name!==self); return o?o.name:'another muscle'; };
   muscles.forEach(m=>{
     const ck=actionKeywords(m.action);
-    /* 1. Innervation — distractors are other nerves of the same limb (commonly confused) */
+    /* 1. Innervation (muscle -> nerve) */
     push(makeQ(`A PTA suspects a peripheral nerve lesion. The ${m.name} receives its motor innervation from which nerve?`,
       m.innervation, tieredValues([reg('innervation',m),all('innervation',m)],m.innervation,3,false), m,'Innervation',
-      `The ${m.name} is innervated by the ${m.innervation}.`));
-    /* 2. Origin — distractors are nearby attachments from muscles in the SAME group */
+      `The ${m.name} is innervated by the ${m.innervation}.`,
+      (o,ok)=> ok ? `Correct — this is the nerve that supplies the ${m.name}.`
+                  : `This nerve supplies the ${ownerOf('innervation',o,m.name)}, not the ${m.name}.`));
+    /* 2. Origin */
     push(makeQ(`Which of the following is the proximal attachment (origin) of the ${m.name}?`,
       m.origin, tieredValues([grp('origin',m),reg('origin',m),all('origin',m)],m.origin,3,false), m,'Origin',
-      `The ${m.name} originates from ${m.origin}.`));
-    /* 3. Insertion — nearby attachments from the SAME group */
+      `The ${m.name} originates from ${m.origin}.`,
+      (o,ok)=> ok ? `Correct — the proximal attachment of the ${m.name}.`
+                  : `This is the origin of the ${ownerOf('origin',o,m.name)}, not the ${m.name}.`));
+    /* 3. Insertion */
     push(makeQ(`At which site does the ${m.name} attach distally (insertion)?`,
       m.insertion, tieredValues([grp('insertion',m),reg('insertion',m),all('insertion',m)],m.insertion,3,false), m,'Insertion',
-      `The ${m.name} inserts on ${m.insertion}.`));
-    /* 4. Action — distractors are other movements of the same region (kept truly wrong) */
+      `The ${m.name} inserts on ${m.insertion}.`,
+      (o,ok)=> ok ? `Correct — the distal attachment of the ${m.name}.`
+                  : `This is the insertion of the ${ownerOf('insertion',o,m.name)}, not the ${m.name}.`));
+    /* 4. Action (muscle -> action) */
     push(makeQ(`Isolated weakness of the ${m.name} would most impair which action?`,
       m.action, tieredValues([reg('action',m),all('action',m)],m.action,3,true), m,'Action',
-      `Action of the ${m.name}: ${m.action}.`));
-    /* 5. Nerve injury -> muscle (two-step: must know each option's innervation) */
+      `Action of the ${m.name}: ${m.action}.`,
+      (o,ok)=> ok ? `Correct — this is what the ${m.name} does.`
+                  : `This is the action of the ${ownerOf('action',o,m.name)}; the ${m.name} does not primarily do this.`));
+    /* 5. Nerve injury -> muscle */
     const regN=muscles.filter(x=>x.region===m.region&&x.name!==m.name&&x.innervation!==m.innervation).map(x=>x.name);
     const allN=muscles.filter(x=>x.name!==m.name&&x.innervation!==m.innervation).map(x=>x.name);
     push(makeQ(`A patient sustains an isolated injury to the ${m.innervation}. Which muscle would demonstrate weakness?`,
       m.name, tieredNames([regN,allN],m.name,3), m,'Nerve injury',
-      `The ${m.name} is supplied by the ${m.innervation}; the other options are innervated by different nerves.`));
-    /* 6. Action -> prime mover (distractors do NOT share the movement) */
+      `The ${m.name} is supplied by the ${m.innervation}.`,
+      (o,ok)=> ok ? `Correct — the ${m.name} is supplied by this nerve, so it is weakened.`
+                  : `The ${o} is innervated by the ${byName[o].innervation}, which is spared by this lesion.`));
+    /* 6. Action -> prime mover */
     const regA=muscles.filter(x=>x.region===m.region&&x.name!==m.name&&actionKeywords(x.action).every(w=>!ck.includes(w))).map(x=>x.name);
     const allA=muscles.filter(x=>x.name!==m.name&&actionKeywords(x.action).every(w=>!ck.includes(w))).map(x=>x.name);
     push(makeQ(`A patient cannot perform the following: ${m.action.replace(/\.$/,'')}. Which muscle is the prime mover?`,
       m.name, tieredNames([regA,allA],m.name,3), m,'Clinical',
-      `${m.name} performs: ${m.action}.`));
-    /* 7. Shared innervation (only when another muscle truly shares the nerve) */
+      `${m.name} performs: ${m.action}.`,
+      (o,ok)=> ok ? `Correct — the ${m.name} is the prime mover for this movement.`
+                  : `The ${o} instead ${lc(byName[o].action)}, so it is not responsible for this movement.`));
+    /* 7. Shared innervation */
     const shares=muscles.filter(x=>x.name!==m.name&&x.innervation===m.innervation).map(x=>x.name);
     if(shares.length){
       const correctShare=shares[Math.floor(Math.random()*shares.length)];
       const diffN=muscles.filter(x=>x.name!==m.name&&x.name!==correctShare&&x.innervation!==m.innervation).map(x=>x.name);
       push(makeQ(`Which muscle is innervated by the same nerve as the ${m.name}?`,
         correctShare, tieredNames([diffN],correctShare,3), m,'Innervation',
-        `Both the ${m.name} and ${correctShare} are innervated by the ${m.innervation}.`));
+        `The ${m.name} is innervated by the ${m.innervation}.`,
+        (o,ok)=> ok ? `Correct — both the ${m.name} and the ${o} are supplied by the ${m.innervation}.`
+                    : `The ${o} is innervated by the ${byName[o].innervation}, a different nerve.`));
     }
     /* 8. Functional — nerve lesion mapped to the everyday movement it impairs */
     const fam=nerveFamily(m.innervation);
@@ -1422,7 +1453,11 @@ function buildQuestionsFor(muscles){
       const anyOther=FUNCTIONAL.filter(f=>f.nerve!==fam).map(f=>f.m);
       push(makeQ(`A patient is referred to physical therapy with a ${NERVE_LABEL[fam]} lesion. Which movement will the patient report the MOST difficulty performing?`,
         cor.m, tieredNames([sameReg,anyOther],cor.m,3), m,'Functional',
-        `A ${NERVE_LABEL[fam]} lesion weakens the muscles that produce this movement, so "${cor.m.toLowerCase()}" is most impaired. The other options are driven by different nerves.`));
+        `A ${NERVE_LABEL[fam]} lesion weakens the muscles that produce this movement.`,
+        (o,ok)=>{ const fe=FUNCTIONAL.find(f=>f.m===o);
+          if(ok) return `Correct — this task depends on muscles supplied by the ${NERVE_LABEL[fam]}.`;
+          if(fe&&fe.nerve!=='na') return `This is driven mainly by the ${NERVE_LABEL[fe.nerve]||fe.nerve}, which is unaffected here.`;
+          return `This relies on trunk and core control, not the ${NERVE_LABEL[fam]}.`; }));
     }
   });
   return q;
@@ -1450,7 +1485,12 @@ function answerQ(i){ if(qAns) return; qAns=true; const q=qDeck[qIdx];
   const btns=document.querySelectorAll('#qOpts .opt');
   btns.forEach((b,j)=>{ b.disabled=true; if(j===q.ci) b.classList.add('correct'); if(j===i&&i!==q.ci) b.classList.add('wrong'); });
   if(i===q.ci){ qCorr++; showFx(true); } else { qWrong++; qMissed.push({q,chosen:i}); showFx(false); }
-  const r=document.getElementById('qRationale'); r.innerHTML='<b>'+(i===q.ci?'Correct.':'Correct answer: '+LETTERS[q.ci]+'.')+'</b> '+q.rationale; r.classList.add('show');
+  const r=document.getElementById('qRationale');
+  let h=`<div class="rat-lead"><b>${i===q.ci?'Correct.':'Correct answer: '+LETTERS[q.ci]+'.'}</b> ${q.headline}</div><div class="rat-list">`;
+  q.opts.forEach((o,j)=>{ const isC=j===q.ci, chosen=(j===i&&i!==q.ci);
+    const cls='ri'+(isC?' good':'')+(chosen?' chosen':'');
+    h+=`<div class="${cls}"><span class="ril">${LETTERS[j]}</span><span class="ritag">${isC?'Correct':'Incorrect'}</span><span class="ritext">${q.expl[o]||''}</span></div>`; });
+  h+='</div>'; r.innerHTML=h; r.classList.add('show');
   document.getElementById('qNext').style.display='inline-flex';
   document.getElementById('qCorr').textContent=qCorr; document.getElementById('qWrong').textContent=qWrong;
   document.getElementById('qMissedStat').classList.toggle('live',qWrong>0);
