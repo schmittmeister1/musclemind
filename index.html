@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuscleMind — Physical Therapy Muscle Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-1:#0e1630; --navy-2:#152244; --navy-3:#1c2c56;
+    --ink:#1b2334; --muted:#64708a; --line:#e6e9f2;
+    --card:#ffffff; --panel-2:#f7f9fc;
+    --brand:#3b56d9; --brand-2:#2dd4bf; --brand-ink:#2740b8;
+    --green:#15935f; --green-2:#0e7a4d; --green-soft:#e8f6ef;
+    --red:#d63b57; --red-2:#b62c46; --red-soft:#fceaee;
+    --chip:#eef1fb;
+    --r-ue:#3b56d9; --r-le:#0f9a8a; --r-tr:#7a52d6; --r-hn:#c05621;
+    --shadow-sm:0 1px 2px rgba(16,24,48,.06),0 2px 8px rgba(16,24,48,.05);
+    --shadow:0 10px 30px rgba(16,24,48,.10);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);min-height:100vh;line-height:1.5;
+    background:
+      radial-gradient(1100px 600px at 15% -10%, #21356e 0%, rgba(33,53,110,0) 55%),
+      radial-gradient(900px 500px at 100% 0%, #123f52 0%, rgba(18,63,82,0) 50%),
+      linear-gradient(160deg, var(--navy-1), var(--navy-2) 60%, #0f1b3a);
+    background-attachment:fixed;
+    padding:34px 16px 70px;
+  }
+  .wrap{max-width:1060px;margin:0 auto}
+  svg{display:block}
+
+  /* ---------- Header ---------- */
+  header{display:flex;flex-direction:column;align-items:center;text-align:center;color:#fff;margin-bottom:26px}
+  .brand{display:inline-flex;align-items:center;gap:13px}
+  .logo-badge{width:46px;height:46px;border-radius:13px;
+    background:linear-gradient(145deg,var(--brand),var(--brand-2));
+    display:grid;place-items:center;box-shadow:0 8px 20px rgba(45,60,180,.4)}
+  .brand h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px}
+  .brand h1 span{font-weight:500;opacity:.62}
+  header .tagline{margin-top:11px;font-size:.95rem;color:#b9c4e0;font-weight:400;letter-spacing:.2px}
+  .rule{width:54px;height:3px;border-radius:3px;margin-top:15px;
+    background:linear-gradient(90deg,var(--brand),var(--brand-2))}
+
+  .panel{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:26px 26px 28px}
+
+  /* ---------- Setup ---------- */
+  .setup h2{font-size:1.22rem;font-weight:800;letter-spacing:-.3px}
+  .setup .sub{color:var(--muted);font-size:.92rem;margin-top:3px;margin-bottom:22px}
+  .section{margin-bottom:26px}
+  .section:last-of-type{margin-bottom:14px}
+  .section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:13px}
+  .section-head h3{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);
+    display:flex;align-items:center;gap:9px}
+  .step-num{width:22px;height:22px;border-radius:7px;background:var(--chip);color:var(--brand-ink);
+    font-size:.74rem;font-weight:800;display:grid;place-items:center;letter-spacing:0}
+  .mini-btns{display:flex;gap:6px}
+  .mini{border:1px solid var(--line);background:#fff;color:var(--brand-ink);font-weight:600;font-size:.75rem;
+    padding:5px 12px;border-radius:8px;cursor:pointer;transition:.14s}
+  .mini:hover{background:var(--chip);border-color:#d3dbf3}
+
+  .chips{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{border:1.5px solid var(--line);background:#fff;color:var(--ink);padding:9px 16px;border-radius:10px;
+    font-size:.88rem;font-weight:600;cursor:pointer;transition:.14s;user-select:none;display:flex;align-items:center;gap:8px}
+  .chip .tick{width:15px;height:15px;opacity:0;transition:.14s;transform:scale(.7)}
+  .chip:hover{border-color:#c3cdf0}
+  .chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .chip.on .tick{opacity:1;transform:scale(1)}
+
+  /* direction cards */
+  .radio-row{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+  .radio-card{border:1.5px solid var(--line);border-radius:13px;padding:14px 15px;cursor:pointer;transition:.14s;position:relative}
+  .radio-card:hover{border-color:#c3cdf0}
+  .radio-card.on{border-color:var(--brand);background:#f6f8ff;box-shadow:0 0 0 3px rgba(59,86,217,.10)}
+  .radio-card .rc-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .radio-card b{font-size:.92rem;font-weight:700}
+  .radio-card span{display:block;font-size:.79rem;color:var(--muted);margin-top:4px}
+  .radio-dot{width:17px;height:17px;border-radius:50%;border:2px solid #cbd3ea;flex:0 0 auto;transition:.14s;position:relative}
+  .radio-card.on .radio-dot{border-color:var(--brand)}
+  .radio-card.on .radio-dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--brand)}
+
+  /* muscle picker */
+  .region-section{margin-bottom:16px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+  .region-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;background:var(--panel-2);
+    border-left:4px solid var(--rc,var(--brand))}
+  .region-bar .title{font-weight:700;font-size:1rem;display:flex;align-items:center;gap:10px}
+  .region-bar .dot{width:9px;height:9px;border-radius:50%;background:var(--rc,var(--brand))}
+  .region-bar .count{font-size:.72rem;color:#fff;font-weight:700;background:var(--rc,var(--brand));padding:2px 9px;border-radius:20px;letter-spacing:.3px}
+  .sub-group{padding:14px 16px 8px;border-top:1px solid #f0f2f9}
+  .sub-group:first-of-type{border-top:none}
+  .sg-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+  .sg-title{font-weight:700;font-size:.82rem;letter-spacing:.2px;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .sg-title::before{content:"";width:14px;height:2px;border-radius:2px;background:var(--rc,var(--brand))}
+  .sg-head .count{font-size:.72rem;color:var(--muted);font-weight:600}
+  .muscle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:8px}
+  .m-chip{display:flex;align-items:center;gap:9px;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;
+    font-size:.83rem;font-weight:500;cursor:pointer;transition:.12s;background:#fff}
+  .m-chip:hover{border-color:#c3cdf0;background:#fafbff}
+  .m-chip.on{border-color:var(--rc,var(--brand));background:#f6f8ff}
+  .m-chip .box{width:19px;height:19px;border-radius:6px;border:1.5px solid #cbd3ea;flex:0 0 auto;display:grid;place-items:center;transition:.12s}
+  .m-chip .box svg{width:12px;height:12px;opacity:0;transition:.12s}
+  .m-chip.on .box{background:var(--rc,var(--brand));border-color:var(--rc,var(--brand))}
+  .m-chip.on .box svg{opacity:1}
+
+  .start-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-top:20px;
+    padding-top:20px;border-top:1px solid var(--line)}
+  .selected-note{font-size:.9rem;color:var(--muted)}
+  .selected-note b{color:var(--brand-ink);font-weight:700}
+  .btn-primary{border:none;cursor:pointer;color:#fff;font-weight:700;font-size:.98rem;padding:14px 30px;border-radius:12px;
+    background:linear-gradient(135deg,var(--brand),#4f46e5);box-shadow:0 8px 20px rgba(59,86,217,.32);
+    transition:.15s;display:inline-flex;align-items:center;gap:10px}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(59,86,217,.42)}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+  /* ---------- Study ---------- */
+  .study{display:none}
+  .study.active{display:block}
+  .study-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+  .btn-ghost{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);color:#fff;font-weight:600;font-size:.86rem;
+    padding:9px 16px;border-radius:10px;cursor:pointer;transition:.14s;display:inline-flex;align-items:center;gap:7px}
+  .btn-ghost:hover{background:rgba(255,255,255,.16)}
+  .stats{display:flex;gap:9px;flex-wrap:wrap}
+  .stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:9px 16px;text-align:center;min-width:76px}
+  .stat .n{font-size:1.24rem;font-weight:800;line-height:1;color:#fff}
+  .stat .l{font-size:.64rem;text-transform:uppercase;letter-spacing:.7px;color:#a7b3d4;margin-top:4px;font-weight:600}
+  .stat.correct .n{color:#4ade9f}
+  .stat.wrong .n{color:#ff8ba0}
+  .stat.streak .n{color:#ffd479}
+
+  .progress-wrap{background:rgba(255,255,255,.12);border-radius:20px;height:7px;overflow:hidden;margin-bottom:22px}
+  .progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--brand-2),#4ade9f);border-radius:20px;transition:width .4s ease}
+
+  .card-stage{perspective:1800px;margin:0 auto 22px;max-width:660px}
+  .flashcard{position:relative;width:100%;min-height:344px;cursor:pointer;transform-style:preserve-3d;
+    transition:transform .6s cubic-bezier(.2,.8,.25,1)}
+  .flashcard.flipped{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;background:var(--card);box-shadow:var(--shadow);
+    padding:40px 34px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border:1px solid rgba(255,255,255,.5)}
+  .face .tag{position:absolute;top:20px;left:22px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+    padding:5px 11px;border-radius:7px;background:var(--chip);color:var(--brand-ink)}
+  .face .region-tag{position:absolute;top:22px;right:22px;font-size:.72rem;font-weight:600;color:var(--muted)}
+  .face .prompt-label{font-size:.76rem;color:var(--muted);font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:1px}
+  .face .prompt-value{font-size:1.72rem;font-weight:800;line-height:1.3;color:var(--ink);letter-spacing:-.3px}
+  .face .hint{position:absolute;bottom:18px;font-size:.75rem;color:#9aa4bd;display:flex;align-items:center;gap:6px}
+  .face.back{transform:rotateY(180deg);background:linear-gradient(165deg,#ffffff,#f5f8ff)}
+  .face.back .prompt-value{font-size:1.34rem;font-weight:700;color:#22304e}
+  .face .ask-again{font-size:.8rem;color:var(--muted);margin-top:12px}
+
+  .flip-btn{display:flex;margin:0 auto 16px;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);
+    border-radius:11px;padding:11px 22px;font-weight:700;color:var(--brand-ink);cursor:pointer;font-size:.92rem;
+    box-shadow:var(--shadow-sm);transition:.15s}
+  .flip-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+  .grade-row{display:flex;gap:13px;justify-content:center;max-width:660px;margin:0 auto}
+  .grade{flex:1;border:none;cursor:pointer;font-weight:700;font-size:.98rem;padding:16px;border-radius:13px;color:#fff;
+    transition:.15s;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:var(--shadow-sm)}
+  .grade.miss{background:linear-gradient(135deg,var(--red),var(--red-2))}
+  .grade.got{background:linear-gradient(135deg,var(--green),var(--green-2))}
+  .grade:hover:not(:disabled){transform:translateY(-1px);box-shadow:var(--shadow)}
+  .grade:disabled{opacity:.4;cursor:not-allowed}
+  .kbd-note{text-align:center;color:#9aa8cc;font-size:.78rem;margin-top:18px}
+  .kbd{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);color:#cdd6ee;
+    border-radius:6px;padding:1px 8px;font-weight:700;margin:0 2px;font-size:.74rem}
+
+  /* ---------- Results ---------- */
+  .done{display:none;text-align:center;padding:20px 10px 8px}
+  .done.active{display:block}
+  .ring-wrap{position:relative;width:172px;height:172px;margin:6px auto 18px}
+  .ring-wrap .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring-wrap .pct .v{font-size:2.6rem;font-weight:800;letter-spacing:-1px;color:var(--ink);line-height:1}
+  .ring-wrap .pct .k{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:2px}
+  .done h2{font-size:1.5rem;font-weight:800;margin-bottom:6px}
+  .done p{color:var(--muted);margin-bottom:22px;max-width:440px;margin-left:auto;margin-right:auto}
+  .score-grid{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
+  .sc{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:15px 26px;min-width:104px}
+  .sc .n{font-size:1.7rem;font-weight:800}
+  .sc .l{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-weight:600;margin-top:2px}
+  .done-btns{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
+  .btn-soft{border:1px solid var(--line);background:#fff;color:var(--ink);font-weight:700;font-size:.92rem;padding:13px 22px;
+    border-radius:12px;cursor:pointer;transition:.14s;display:inline-flex;align-items:center;gap:8px}
+  .btn-soft:hover{background:var(--panel-2);border-color:#d3dbf3}
+
+  /* ---------- Feedback overlay ---------- */
+  #fx{position:fixed;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;z-index:60}
+  #fx.show{display:flex}
+  .pop{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .pop .badge{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;position:relative;
+    box-shadow:0 18px 50px rgba(16,24,48,.28)}
+  .pop.correct .badge{background:linear-gradient(145deg,var(--green),var(--green-2))}
+  .pop.wrong .badge{background:linear-gradient(145deg,var(--red),var(--red-2))}
+  .pop .badge svg{width:60px;height:60px;stroke:#fff}
+  .pop .word{font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:.3px;
+    text-shadow:0 3px 16px rgba(0,0,0,.35)}
+  .pop.correct{animation:popIn .5s cubic-bezier(.2,.9,.3,1.2) forwards}
+  .pop.wrong{animation:popShake .55s ease forwards}
+  @keyframes popIn{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+  @keyframes popShake{0%{transform:scale(.6);opacity:0}25%{transform:scale(1);opacity:1}
+    35%,65%{transform:translateX(-11px)}50%,80%{transform:translateX(11px)}100%{transform:translateX(0)}}
+  .ring-pulse{position:absolute;width:120px;height:120px;border-radius:50%;border:3px solid var(--green);opacity:.7;
+    animation:ringPulse .7s ease-out forwards}
+  .pop.correct .badge .ck{stroke-dasharray:48;stroke-dashoffset:48;animation:draw .45s .12s ease forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes ringPulse{to{transform:scale(1.9);opacity:0}}
+
+  footer{text-align:center;color:#8090b5;font-size:.8rem;margin-top:30px}
+  .disclaimer{color:#7180a6;font-size:.74rem;margin-top:6px;max-width:520px;margin-left:auto;margin-right:auto}
+
+  @media(max-width:640px){
+    .radio-row{grid-template-columns:1fr}
+    .face .prompt-value{font-size:1.4rem}
+    .brand h1{font-size:1.45rem}
+    .stat{min-width:66px;padding:8px 12px}
+    .grade{font-size:.9rem;padding:14px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo-badge">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12h3l2-5 3 10 2.5-7 1.5 4h3.5"/>
+        </svg>
+      </div>
+      <h1>Muscle<span>Mind</span></h1>
+    </div>
+    <div class="tagline">Origin · Insertion · Innervation · Action — flashcards for physical therapy students</div>
+    <div class="rule"></div>
+  </header>
+
+  <!-- ============ SETUP ============ -->
+  <div class="panel setup" id="setup">
+    <h2>Build your study session</h2>
+    <div class="sub">Choose what to test, how cards are asked, and which muscles to include.</div>
+
+    <div class="section">
+      <div class="section-head">
+        <h3><span class="step-num">1</span> Facts to test</h3>
+        <div class="mini-btns">
+          <button class="mini" onclick="setAllFactors(true)">All</button>
+          <button class="mini" onclick="setAllFactors(false)">None</button>
+        </div>
+      </div>
+      <div class="chips" id="factorChips"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h3><span class="step-num">2</span> Card direction</h3></div>
+      <div class="radio-row" id="directionRow">
+        <div class="radio-card on" data-dir="both" onclick="setDirection('both',this)">
+          <div class="rc-top"><b>Both ways</b><span class="radio-dot"></span></div>
+          <span>Mix muscle → fact and fact → muscle</span>
+        </div>
+        <div class="radio-card" data-dir="m2f" onclick="setDirection('m2f',this)">
+          <div class="rc-top"><b>Muscle → Fact</b><span class="radio-dot"></span></div>
+          <span>See the muscle, recall the fact</span>
+        </div>
+        <div class="radio-card" data-dir="f2m" onclick="setDirection('f2m',this)">
+          <div class="rc-top"><b>Fact → Muscle</b><span class="radio-dot"></span></div>
+          <span>See a fact, name the muscle</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h3><span class="step-num">3</span> Muscles</h3>
+        <div class="mini-btns">
+          <button class="mini" onclick="setAllMuscles(true)">Select all</button>
+          <button class="mini" onclick="setAllMuscles(false)">Clear all</button>
+        </div>
+      </div>
+      <div id="muscleRegions"></div>
+    </div>
+
+    <div class="start-row">
+      <div class="selected-note" id="selNote"></div>
+      <button class="btn-primary" id="startBtn" onclick="startSession()">
+        Start studying
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ STUDY ============ -->
+  <div class="study" id="study">
+    <div class="study-top">
+      <button class="btn-ghost" onclick="backToSetup()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Settings
+      </button>
+      <div class="stats">
+        <div class="stat"><div class="n" id="posN">0/0</div><div class="l">Card</div></div>
+        <div class="stat correct"><div class="n" id="corrN">0</div><div class="l">Correct</div></div>
+        <div class="stat wrong"><div class="n" id="wrongN">0</div><div class="l">Missed</div></div>
+        <div class="stat streak"><div class="n" id="streakN">0</div><div class="l">Streak</div></div>
+      </div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progBar"></div></div>
+
+    <div class="card-stage">
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="face front">
+          <div class="tag" id="frontTag">Muscle</div>
+          <div class="region-tag" id="frontRegion"></div>
+          <div class="prompt-label" id="frontLabel">Muscle</div>
+          <div class="prompt-value" id="frontValue">—</div>
+          <div class="hint">Click to flip</div>
+        </div>
+        <div class="face back">
+          <div class="tag" id="backTag">Answer</div>
+          <div class="prompt-label" id="backLabel">Answer</div>
+          <div class="prompt-value" id="backValue">—</div>
+          <div class="ask-again" id="backContext"></div>
+          <div class="hint">How did you do?</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="flip-btn" id="flipBtn" onclick="flipCard()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4v6h6M21 20v-6h-6"/><path d="M20.5 9A9 9 0 0 0 5.6 5.6L3 8M3.5 15a9 9 0 0 0 14.9 3.4L21 16"/></svg>
+      Flip card
+    </button>
+    <div class="grade-row">
+      <button class="grade miss" id="missBtn" onclick="grade(false)" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        Missed it
+      </button>
+      <button class="grade got" id="gotBtn" onclick="grade(true)" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        Got it
+      </button>
+    </div>
+    <div class="kbd-note">Shortcuts: <span class="kbd">Space</span> flip · <span class="kbd">&larr;</span> missed · <span class="kbd">&rarr;</span> got it</div>
+  </div>
+
+  <!-- ============ RESULTS ============ -->
+  <div class="panel done" id="done">
+    <div class="ring-wrap">
+      <svg width="172" height="172" viewBox="0 0 172 172">
+        <circle cx="86" cy="86" r="74" fill="none" stroke="#eef1f8" stroke-width="14"/>
+        <circle id="ringFg" cx="86" cy="86" r="74" fill="none" stroke="url(#rg)" stroke-width="14" stroke-linecap="round"
+                transform="rotate(-90 86 86)" stroke-dasharray="465" stroke-dashoffset="465"/>
+        <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#3b56d9"/><stop offset="1" stop-color="#2dd4bf"/>
+        </linearGradient></defs>
+      </svg>
+      <div class="pct"><div class="v" id="dPct">0%</div><div class="k">Accuracy</div></div>
+    </div>
+    <h2 id="doneTitle">Session complete</h2>
+    <p id="doneMsg">Nice work.</p>
+    <div class="score-grid">
+      <div class="sc"><div class="n" id="dCorrect" style="color:var(--green)">0</div><div class="l">Correct</div></div>
+      <div class="sc"><div class="n" id="dWrong" style="color:var(--red)">0</div><div class="l">Missed</div></div>
+      <div class="sc"><div class="n" id="dBest" style="color:var(--brand-ink)">0</div><div class="l">Best streak</div></div>
+    </div>
+    <div class="done-btns">
+      <button class="btn-primary" onclick="retryMissed()" id="retryBtn">Retry missed cards</button>
+      <button class="btn-soft" onclick="restartSame()">Study again</button>
+      <button class="btn-soft" onclick="backToSetup()">New session</button>
+    </div>
+  </div>
+
+  <footer>
+    MuscleMind · A study aid for physical therapy students
+    <div class="disclaimer">Content follows standard anatomy references and is intended for study. Always verify against your required course materials before exams.</div>
+  </footer>
+</div>
+
+<div id="fx"><div class="pop" id="pop"></div></div>
+
+<script>
+/* ============================================================
+   PT Muscle Study Deck — Muscle Dataset
+   Each muscle: name, region, group, origin, insertion, innervation, action
+   ============================================================ */
+
+/* Ordered sub-groups, each tied to a broad region */
+const GROUPS = [
+  { name: "Scapular Stabilizers",     region: "Upper Extremity" },
+  { name: "Rotator Cuff",             region: "Upper Extremity" },
+  { name: "Shoulder (Glenohumeral)",  region: "Upper Extremity" },
+  { name: "Arm (Elbow)",              region: "Upper Extremity" },
+  { name: "Forearm & Wrist",          region: "Upper Extremity" },
+
+  { name: "Hip Flexors",              region: "Lower Extremity" },
+  { name: "Gluteals & Hip Rotators",  region: "Lower Extremity" },
+  { name: "Quadriceps",               region: "Lower Extremity" },
+  { name: "Hip Adductors",            region: "Lower Extremity" },
+  { name: "Hamstrings",               region: "Lower Extremity" },
+  { name: "Leg, Ankle & Foot",        region: "Lower Extremity" },
+
+  { name: "Abdominals",               region: "Trunk & Core" },
+  { name: "Back & Spine",             region: "Trunk & Core" },
+  { name: "Respiration",              region: "Trunk & Core" },
+
+  { name: "Neck",                     region: "Head & Neck" },
+  { name: "Muscles of Mastication",   region: "Head & Neck" }
+];
+
+const MUSCLES = [
+  /* ===== UPPER EXTREMITY — Scapular Stabilizers ===== */
+  {
+    name: "Trapezius", region: "Upper Extremity", group: "Scapular Stabilizers",
+    origin: "External occipital protuberance, nuchal ligament, and spinous processes of C7–T12",
+    insertion: "Lateral third of clavicle, acromion, and spine of the scapula",
+    innervation: "Accessory nerve (CN XI)",
+    action: "Elevates, retracts, and depresses the scapula; upwardly rotates the scapula"
+  },
+  {
+    name: "Levator Scapulae", region: "Upper Extremity", group: "Scapular Stabilizers",
+    origin: "Transverse processes of C1–C4",
+    insertion: "Superior part of the medial border of the scapula",
+    innervation: "Dorsal scapular nerve (C5) and C3–C4",
+    action: "Elevates and downwardly rotates the scapula"
+  },
+  {
+    name: "Rhomboid Major", region: "Upper Extremity", group: "Scapular Stabilizers",
+    origin: "Spinous processes of T2–T5",
+    insertion: "Medial border of the scapula, below the spine",
+    innervation: "Dorsal scapular nerve (C5)",
+    action: "Retracts and downwardly rotates the scapula"
+  },
+  {
+    name: "Rhomboid Minor", region: "Upper Extremity", group: "Scapular Stabilizers",
+    origin: "Nuchal ligament and spinous processes of C7–T1",
+    insertion: "Medial border of the scapula at the root of the spine",
+    innervation: "Dorsal scapular nerve (C5)",
+    action: "Retracts and downwardly rotates the scapula"
+  },
+  {
+    name: "Serratus Anterior", region: "Upper Extremity", group: "Scapular Stabilizers",
+    origin: "External surfaces of ribs 1–8/9",
+    insertion: "Anterior surface of the medial border of the scapula",
+    innervation: "Long thoracic nerve (C5–C7)",
+    action: "Protracts and upwardly rotates the scapula; holds it against the thorax"
+  },
+  {
+    name: "Pectoralis Minor", region: "Upper Extremity", group: "Scapular Stabilizers",
+    origin: "Ribs 3–5, near the costal cartilages",
+    insertion: "Coracoid process of the scapula",
+    innervation: "Medial pectoral nerve (C8–T1)",
+    action: "Depresses and protracts the scapula; elevates the ribs in forced inspiration"
+  },
+  {
+    name: "Subclavius", region: "Upper Extremity", group: "Scapular Stabilizers",
+    origin: "Junction of the 1st rib and its costal cartilage",
+    insertion: "Inferior surface of the middle third of the clavicle",
+    innervation: "Nerve to subclavius (C5–C6)",
+    action: "Depresses and stabilizes the clavicle; protects underlying neurovascular structures"
+  },
+
+  /* ===== UPPER EXTREMITY — Rotator Cuff ===== */
+  {
+    name: "Supraspinatus", region: "Upper Extremity", group: "Rotator Cuff",
+    origin: "Supraspinous fossa of the scapula",
+    insertion: "Superior facet of the greater tubercle of the humerus",
+    innervation: "Suprascapular nerve (C5–C6)",
+    action: "Initiates abduction of the arm (first ~15°); stabilizes the glenohumeral joint"
+  },
+  {
+    name: "Infraspinatus", region: "Upper Extremity", group: "Rotator Cuff",
+    origin: "Infraspinous fossa of the scapula",
+    insertion: "Middle facet of the greater tubercle of the humerus",
+    innervation: "Suprascapular nerve (C5–C6)",
+    action: "Laterally rotates the arm; stabilizes the glenohumeral joint"
+  },
+  {
+    name: "Teres Minor", region: "Upper Extremity", group: "Rotator Cuff",
+    origin: "Upper part of the lateral border of the scapula",
+    insertion: "Inferior facet of the greater tubercle of the humerus",
+    innervation: "Axillary nerve (C5–C6)",
+    action: "Laterally rotates the arm; stabilizes the glenohumeral joint"
+  },
+  {
+    name: "Subscapularis", region: "Upper Extremity", group: "Rotator Cuff",
+    origin: "Subscapular fossa of the scapula",
+    insertion: "Lesser tubercle of the humerus",
+    innervation: "Upper and lower subscapular nerves (C5–C6)",
+    action: "Medially rotates the arm; stabilizes the glenohumeral joint"
+  },
+
+  /* ===== UPPER EXTREMITY — Shoulder (Glenohumeral) ===== */
+  {
+    name: "Pectoralis Major", region: "Upper Extremity", group: "Shoulder (Glenohumeral)",
+    origin: "Medial clavicle, sternum, and costal cartilages 1–6",
+    insertion: "Lateral lip of the intertubercular (bicipital) groove of the humerus",
+    innervation: "Medial and lateral pectoral nerves (C5–T1)",
+    action: "Adducts, medially rotates, and flexes the arm at the shoulder"
+  },
+  {
+    name: "Latissimus Dorsi", region: "Upper Extremity", group: "Shoulder (Glenohumeral)",
+    origin: "Spinous processes of T7–L5, thoracolumbar fascia, iliac crest, and lower 3–4 ribs",
+    insertion: "Floor of the intertubercular groove of the humerus",
+    innervation: "Thoracodorsal nerve (C6–C8)",
+    action: "Extends, adducts, and medially rotates the arm"
+  },
+  {
+    name: "Deltoid", region: "Upper Extremity", group: "Shoulder (Glenohumeral)",
+    origin: "Lateral third of clavicle, acromion, and spine of the scapula",
+    insertion: "Deltoid tuberosity of the humerus",
+    innervation: "Axillary nerve (C5–C6)",
+    action: "Anterior fibers flex and medially rotate; middle fibers abduct; posterior fibers extend and laterally rotate the arm"
+  },
+  {
+    name: "Teres Major", region: "Upper Extremity", group: "Shoulder (Glenohumeral)",
+    origin: "Inferior angle and lateral border of the scapula",
+    insertion: "Medial lip of the intertubercular groove of the humerus",
+    innervation: "Lower subscapular nerve (C5–C6)",
+    action: "Adducts and medially rotates the arm"
+  },
+  {
+    name: "Coracobrachialis", region: "Upper Extremity", group: "Shoulder (Glenohumeral)",
+    origin: "Coracoid process of the scapula",
+    insertion: "Medial surface of the mid-shaft of the humerus",
+    innervation: "Musculocutaneous nerve (C5–C7)",
+    action: "Flexes and adducts the arm at the shoulder"
+  },
+
+  /* ===== UPPER EXTREMITY — Arm (Elbow) ===== */
+  {
+    name: "Biceps Brachii", region: "Upper Extremity", group: "Arm (Elbow)",
+    origin: "Long head: supraglenoid tubercle of the scapula; Short head: coracoid process of the scapula",
+    insertion: "Radial tuberosity and bicipital aponeurosis (into forearm fascia)",
+    innervation: "Musculocutaneous nerve (C5–C6)",
+    action: "Flexes the elbow and supinates the forearm; assists shoulder flexion"
+  },
+  {
+    name: "Brachialis", region: "Upper Extremity", group: "Arm (Elbow)",
+    origin: "Anterior surface of the distal humerus",
+    insertion: "Coronoid process and tuberosity of the ulna",
+    innervation: "Musculocutaneous nerve (C5–C6)",
+    action: "Flexes the elbow (primary elbow flexor in all positions)"
+  },
+  {
+    name: "Triceps Brachii", region: "Upper Extremity", group: "Arm (Elbow)",
+    origin: "Long head: infraglenoid tubercle of the scapula; Lateral and medial heads: posterior surface of the humerus",
+    insertion: "Olecranon process of the ulna",
+    innervation: "Radial nerve (C6–C8)",
+    action: "Extends the elbow; long head also extends and adducts the arm"
+  },
+  {
+    name: "Anconeus", region: "Upper Extremity", group: "Arm (Elbow)",
+    origin: "Lateral epicondyle of the humerus",
+    insertion: "Olecranon and posterior surface of the proximal ulna",
+    innervation: "Radial nerve (C7–C8)",
+    action: "Assists the triceps in extending the elbow; stabilizes the elbow joint"
+  },
+
+  /* ===== UPPER EXTREMITY — Forearm & Wrist ===== */
+  {
+    name: "Brachioradialis", region: "Upper Extremity", group: "Forearm & Wrist",
+    origin: "Lateral supracondylar ridge of the humerus",
+    insertion: "Styloid process of the radius",
+    innervation: "Radial nerve (C5–C6)",
+    action: "Flexes the elbow (most effective in mid-pronation)"
+  },
+  {
+    name: "Pronator Teres", region: "Upper Extremity", group: "Forearm & Wrist",
+    origin: "Medial epicondyle of the humerus and coronoid process of the ulna",
+    insertion: "Lateral surface of the mid-shaft of the radius",
+    innervation: "Median nerve (C6–C7)",
+    action: "Pronates the forearm; assists elbow flexion"
+  },
+  {
+    name: "Pronator Quadratus", region: "Upper Extremity", group: "Forearm & Wrist",
+    origin: "Distal anterior surface of the ulna",
+    insertion: "Distal anterior surface of the radius",
+    innervation: "Anterior interosseous nerve — branch of median (C8–T1)",
+    action: "Pronates the forearm (primary pronator); binds the radius and ulna together"
+  },
+  {
+    name: "Supinator", region: "Upper Extremity", group: "Forearm & Wrist",
+    origin: "Lateral epicondyle of the humerus, radial collateral and annular ligaments, and supinator crest of the ulna",
+    insertion: "Proximal lateral surface of the radius",
+    innervation: "Deep branch of the radial (posterior interosseous) nerve (C6–C7)",
+    action: "Supinates the forearm"
+  },
+  {
+    name: "Flexor Carpi Radialis", region: "Upper Extremity", group: "Forearm & Wrist",
+    origin: "Medial epicondyle of the humerus (common flexor origin)",
+    insertion: "Base of the 2nd and 3rd metacarpals",
+    innervation: "Median nerve (C6–C7)",
+    action: "Flexes and abducts (radially deviates) the wrist"
+  },
+  {
+    name: "Flexor Carpi Ulnaris", region: "Upper Extremity", group: "Forearm & Wrist",
+    origin: "Medial epicondyle of the humerus and posterior/olecranon border of the ulna",
+    insertion: "Pisiform, hook of hamate, and base of the 5th metacarpal",
+    innervation: "Ulnar nerve (C7–C8)",
+    action: "Flexes and adducts (ulnarly deviates) the wrist"
+  },
+  {
+    name: "Flexor Digitorum Superficialis", region: "Upper Extremity", group: "Forearm & Wrist",
+    origin: "Medial epicondyle of the humerus, coronoid process of the ulna, and anterior radius",
+    insertion: "Sides of the middle phalanges of digits 2–5",
+    innervation: "Median nerve (C7–C8, T1)",
+    action: "Flexes the PIP joints of digits 2–5; assists MCP and wrist flexion"
+  },
+  {
+    name: "Extensor Carpi Radialis Longus", region: "Upper Extremity", group: "Forearm & Wrist",
+    origin: "Lateral supracondylar ridge of the humerus",
+    insertion: "Base of the 2nd metacarpal",
+    innervation: "Radial nerve (C6–C7)",
+    action: "Extends and abducts (radially deviates) the wrist"
+  },
+  {
+    name: "Extensor Carpi Ulnaris", region: "Upper Extremity", group: "Forearm & Wrist",
+    origin: "Lateral epicondyle of the humerus and posterior border of the ulna",
+    insertion: "Base of the 5th metacarpal",
+    innervation: "Posterior interosseous nerve — deep branch of radial (C7–C8)",
+    action: "Extends and adducts (ulnarly deviates) the wrist"
+  },
+  {
+    name: "Extensor Digitorum", region: "Upper Extremity", group: "Forearm & Wrist",
+    origin: "Lateral epicondyle of the humerus (common extensor origin)",
+    insertion: "Extensor expansions of the middle and distal phalanges of digits 2–5",
+    innervation: "Posterior interosseous nerve — deep branch of radial (C7–C8)",
+    action: "Extends the fingers (digits 2–5) and assists wrist extension"
+  },
+
+  /* ===== LOWER EXTREMITY — Hip Flexors ===== */
+  {
+    name: "Psoas Major", region: "Lower Extremity", group: "Hip Flexors",
+    origin: "Transverse processes and bodies of T12–L5 vertebrae",
+    insertion: "Lesser trochanter of the femur",
+    innervation: "Anterior rami of L1–L3",
+    action: "Flexes the hip (thigh on trunk); assists trunk flexion"
+  },
+  {
+    name: "Iliacus", region: "Lower Extremity", group: "Hip Flexors",
+    origin: "Iliac fossa of the ilium",
+    insertion: "Lesser trochanter of the femur (joins psoas as iliopsoas)",
+    innervation: "Femoral nerve (L2–L3)",
+    action: "Flexes the hip"
+  },
+  {
+    name: "Sartorius", region: "Lower Extremity", group: "Hip Flexors",
+    origin: "Anterior superior iliac spine (ASIS)",
+    insertion: "Proximal medial surface of the tibia (pes anserinus)",
+    innervation: "Femoral nerve (L2–L3)",
+    action: "Flexes, abducts, and laterally rotates the hip; flexes the knee"
+  },
+
+  /* ===== LOWER EXTREMITY — Gluteals & Hip Rotators ===== */
+  {
+    name: "Gluteus Maximus", region: "Lower Extremity", group: "Gluteals & Hip Rotators",
+    origin: "Posterior ilium (behind posterior gluteal line), sacrum, coccyx, and sacrotuberous ligament",
+    insertion: "Iliotibial tract and gluteal tuberosity of the femur",
+    innervation: "Inferior gluteal nerve (L5–S2)",
+    action: "Extends and laterally rotates the hip"
+  },
+  {
+    name: "Gluteus Medius", region: "Lower Extremity", group: "Gluteals & Hip Rotators",
+    origin: "External surface of the ilium between the anterior and posterior gluteal lines",
+    insertion: "Lateral surface of the greater trochanter of the femur",
+    innervation: "Superior gluteal nerve (L4–S1)",
+    action: "Abducts and medially rotates the hip; stabilizes the pelvis during gait"
+  },
+  {
+    name: "Gluteus Minimus", region: "Lower Extremity", group: "Gluteals & Hip Rotators",
+    origin: "External surface of the ilium between the anterior and inferior gluteal lines",
+    insertion: "Anterior surface of the greater trochanter of the femur",
+    innervation: "Superior gluteal nerve (L4–S1)",
+    action: "Abducts and medially rotates the hip; stabilizes the pelvis during gait"
+  },
+  {
+    name: "Tensor Fasciae Latae", region: "Lower Extremity", group: "Gluteals & Hip Rotators",
+    origin: "Anterior superior iliac spine (ASIS) and anterior iliac crest",
+    insertion: "Iliotibial tract (to Gerdy's tubercle of the tibia)",
+    innervation: "Superior gluteal nerve (L4–S1)",
+    action: "Flexes, abducts, and medially rotates the hip; tenses the IT band"
+  },
+  {
+    name: "Piriformis", region: "Lower Extremity", group: "Gluteals & Hip Rotators",
+    origin: "Anterior surface of the sacrum",
+    insertion: "Superior border of the greater trochanter of the femur",
+    innervation: "Nerve to piriformis (S1–S2)",
+    action: "Laterally rotates the extended hip; abducts the flexed hip"
+  },
+  {
+    name: "Obturator Internus", region: "Lower Extremity", group: "Gluteals & Hip Rotators",
+    origin: "Internal (pelvic) surface of the obturator membrane and surrounding bony margin",
+    insertion: "Medial surface of the greater trochanter of the femur",
+    innervation: "Nerve to obturator internus (L5–S1)",
+    action: "Laterally rotates the extended hip; abducts the flexed hip; stabilizes the femoral head"
+  },
+  {
+    name: "Quadratus Femoris", region: "Lower Extremity", group: "Gluteals & Hip Rotators",
+    origin: "Lateral border of the ischial tuberosity",
+    insertion: "Quadrate tubercle on the intertrochanteric crest of the femur",
+    innervation: "Nerve to quadratus femoris (L5–S1)",
+    action: "Laterally rotates the hip; stabilizes the femoral head in the acetabulum"
+  },
+
+  /* ===== LOWER EXTREMITY — Quadriceps ===== */
+  {
+    name: "Rectus Femoris", region: "Lower Extremity", group: "Quadriceps",
+    origin: "Anterior inferior iliac spine (AIIS)",
+    insertion: "Tibial tuberosity via the patella and patellar ligament",
+    innervation: "Femoral nerve (L2–L4)",
+    action: "Extends the knee and flexes the hip"
+  },
+  {
+    name: "Vastus Lateralis", region: "Lower Extremity", group: "Quadriceps",
+    origin: "Greater trochanter and lateral lip of the linea aspera of the femur",
+    insertion: "Tibial tuberosity via the patella and patellar ligament",
+    innervation: "Femoral nerve (L2–L4)",
+    action: "Extends the knee"
+  },
+  {
+    name: "Vastus Medialis", region: "Lower Extremity", group: "Quadriceps",
+    origin: "Intertrochanteric line and medial lip of the linea aspera of the femur",
+    insertion: "Tibial tuberosity via the patella and patellar ligament",
+    innervation: "Femoral nerve (L2–L4)",
+    action: "Extends the knee; stabilizes the patella (VMO)"
+  },
+  {
+    name: "Vastus Intermedius", region: "Lower Extremity", group: "Quadriceps",
+    origin: "Anterior and lateral surfaces of the femoral shaft",
+    insertion: "Tibial tuberosity via the patella and patellar ligament",
+    innervation: "Femoral nerve (L2–L4)",
+    action: "Extends the knee"
+  },
+
+  /* ===== LOWER EXTREMITY — Hip Adductors ===== */
+  {
+    name: "Adductor Longus", region: "Lower Extremity", group: "Hip Adductors",
+    origin: "Body of the pubis, below the pubic crest",
+    insertion: "Middle third of the linea aspera of the femur",
+    innervation: "Obturator nerve (L2–L4)",
+    action: "Adducts the hip; assists hip flexion"
+  },
+  {
+    name: "Adductor Brevis", region: "Lower Extremity", group: "Hip Adductors",
+    origin: "Body and inferior ramus of the pubis",
+    insertion: "Pectineal line and proximal part of the linea aspera of the femur",
+    innervation: "Obturator nerve (L2–L4)",
+    action: "Adducts the hip; assists hip flexion"
+  },
+  {
+    name: "Adductor Magnus", region: "Lower Extremity", group: "Hip Adductors",
+    origin: "Ischiopubic ramus (adductor part) and ischial tuberosity (hamstring part)",
+    insertion: "Linea aspera and adductor tubercle of the femur",
+    innervation: "Obturator nerve (L2–L4) and tibial division of the sciatic nerve (L4)",
+    action: "Adducts the hip; adductor part flexes and hamstring part extends the hip"
+  },
+  {
+    name: "Gracilis", region: "Lower Extremity", group: "Hip Adductors",
+    origin: "Body and inferior ramus of the pubis",
+    insertion: "Proximal medial surface of the tibia (pes anserinus)",
+    innervation: "Obturator nerve (L2–L3)",
+    action: "Adducts the hip; flexes and medially rotates the knee"
+  },
+  {
+    name: "Pectineus", region: "Lower Extremity", group: "Hip Adductors",
+    origin: "Pectineal line (pecten) of the pubis",
+    insertion: "Pectineal line of the femur, just below the lesser trochanter",
+    innervation: "Femoral nerve (L2–L3)",
+    action: "Adducts and flexes the hip"
+  },
+
+  /* ===== LOWER EXTREMITY — Hamstrings ===== */
+  {
+    name: "Biceps Femoris", region: "Lower Extremity", group: "Hamstrings",
+    origin: "Long head: ischial tuberosity; Short head: linea aspera of the femur",
+    insertion: "Head of the fibula",
+    innervation: "Long head: tibial division of sciatic (S1–S3); Short head: common fibular division (L5–S2)",
+    action: "Flexes the knee and laterally rotates the leg; long head extends the hip"
+  },
+  {
+    name: "Semitendinosus", region: "Lower Extremity", group: "Hamstrings",
+    origin: "Ischial tuberosity",
+    insertion: "Proximal medial surface of the tibia (pes anserinus)",
+    innervation: "Tibial division of the sciatic nerve (L5–S2)",
+    action: "Extends the hip; flexes and medially rotates the knee"
+  },
+  {
+    name: "Semimembranosus", region: "Lower Extremity", group: "Hamstrings",
+    origin: "Ischial tuberosity",
+    insertion: "Posterior surface of the medial condyle of the tibia",
+    innervation: "Tibial division of the sciatic nerve (L5–S2)",
+    action: "Extends the hip; flexes and medially rotates the knee"
+  },
+
+  /* ===== LOWER EXTREMITY — Leg, Ankle & Foot ===== */
+  {
+    name: "Gastrocnemius", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Medial and lateral condyles of the femur",
+    insertion: "Calcaneus via the calcaneal (Achilles) tendon",
+    innervation: "Tibial nerve (S1–S2)",
+    action: "Plantarflexes the ankle; assists knee flexion"
+  },
+  {
+    name: "Soleus", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Soleal line of the posterior tibia and proximal posterior fibula",
+    insertion: "Calcaneus via the calcaneal (Achilles) tendon",
+    innervation: "Tibial nerve (S1–S2)",
+    action: "Plantarflexes the ankle; postural stabilization in standing"
+  },
+  {
+    name: "Plantaris", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Lateral supracondylar line of the femur, above the lateral head of gastrocnemius",
+    insertion: "Calcaneus via the calcaneal tendon (medial side)",
+    innervation: "Tibial nerve (S1–S2)",
+    action: "Weakly assists plantarflexion of the ankle and flexion of the knee"
+  },
+  {
+    name: "Popliteus", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Lateral condyle of the femur",
+    insertion: "Posterior surface of the proximal tibia, above the soleal line",
+    innervation: "Tibial nerve (L4–S1)",
+    action: "Unlocks the knee (medially rotates the tibia on the femur); assists knee flexion"
+  },
+  {
+    name: "Tibialis Anterior", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Lateral condyle and proximal lateral surface of the tibia; interosseous membrane",
+    insertion: "Medial cuneiform and base of the 1st metatarsal",
+    innervation: "Deep fibular (peroneal) nerve (L4–L5)",
+    action: "Dorsiflexes and inverts the foot"
+  },
+  {
+    name: "Tibialis Posterior", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Posterior surfaces of the tibia, fibula, and interosseous membrane",
+    insertion: "Navicular, cuneiforms, cuboid, and bases of metatarsals 2–4",
+    innervation: "Tibial nerve (L4–L5)",
+    action: "Plantarflexes and inverts the foot; supports the medial longitudinal arch"
+  },
+  {
+    name: "Fibularis Longus", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Head and proximal lateral surface of the fibula",
+    insertion: "Base of the 1st metatarsal and medial cuneiform (plantar side)",
+    innervation: "Superficial fibular (peroneal) nerve (L5–S1)",
+    action: "Everts and plantarflexes the foot; supports the arches"
+  },
+  {
+    name: "Fibularis Brevis", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Distal lateral surface of the fibula",
+    insertion: "Tuberosity at the base of the 5th metatarsal",
+    innervation: "Superficial fibular (peroneal) nerve (L5–S1)",
+    action: "Everts and plantarflexes the foot"
+  },
+  {
+    name: "Extensor Digitorum Longus", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Lateral condyle of the tibia, proximal anterior fibula, and interosseous membrane",
+    insertion: "Middle and distal phalanges of digits 2–5",
+    innervation: "Deep fibular (peroneal) nerve (L5–S1)",
+    action: "Extends the toes (2–5) and dorsiflexes the foot"
+  },
+  {
+    name: "Extensor Hallucis Longus", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Middle anterior surface of the fibula and interosseous membrane",
+    insertion: "Base of the distal phalanx of the great toe (hallux)",
+    innervation: "Deep fibular (peroneal) nerve (L5–S1)",
+    action: "Extends the great toe; dorsiflexes the foot"
+  },
+  {
+    name: "Flexor Hallucis Longus", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Posterior surface of the fibula and interosseous membrane",
+    insertion: "Base of the distal phalanx of the great toe (hallux)",
+    innervation: "Tibial nerve (S1–S3)",
+    action: "Flexes the great toe; plantarflexes and inverts the foot; supports the medial arch"
+  },
+  {
+    name: "Flexor Digitorum Longus", region: "Lower Extremity", group: "Leg, Ankle & Foot",
+    origin: "Posterior surface of the tibia",
+    insertion: "Bases of the distal phalanges of digits 2–5",
+    innervation: "Tibial nerve (S1–S3)",
+    action: "Flexes the lateral four toes; plantarflexes and inverts the foot"
+  },
+
+  /* ===== TRUNK & CORE — Abdominals ===== */
+  {
+    name: "Rectus Abdominis", region: "Trunk & Core", group: "Abdominals",
+    origin: "Pubic crest and pubic symphysis",
+    insertion: "Xiphoid process and costal cartilages of ribs 5–7",
+    innervation: "Anterior rami of thoracoabdominal (intercostal) nerves T7–T12",
+    action: "Flexes the trunk; compresses the abdominal contents"
+  },
+  {
+    name: "External Oblique", region: "Trunk & Core", group: "Abdominals",
+    origin: "External surfaces of ribs 5–12",
+    insertion: "Iliac crest, pubic tubercle, and linea alba",
+    innervation: "Thoracoabdominal nerves T7–T12",
+    action: "Flexes and laterally flexes the trunk; contralateral rotation; compresses the abdomen"
+  },
+  {
+    name: "Internal Oblique", region: "Trunk & Core", group: "Abdominals",
+    origin: "Thoracolumbar fascia, iliac crest, and lateral inguinal ligament",
+    insertion: "Inferior borders of ribs 10–12, linea alba, and pubis",
+    innervation: "Thoracoabdominal nerves T7–T12 and L1",
+    action: "Flexes and laterally flexes the trunk; ipsilateral rotation; compresses the abdomen"
+  },
+  {
+    name: "Transversus Abdominis", region: "Trunk & Core", group: "Abdominals",
+    origin: "Thoracolumbar fascia, iliac crest, inguinal ligament, and costal cartilages 7–12",
+    insertion: "Linea alba, pubic crest, and pecten pubis",
+    innervation: "Thoracoabdominal nerves T7–T12 and L1",
+    action: "Compresses the abdomen; stabilizes the core (draws in the abdominal wall)"
+  },
+
+  /* ===== TRUNK & CORE — Back & Spine ===== */
+  {
+    name: "Quadratus Lumborum", region: "Trunk & Core", group: "Back & Spine",
+    origin: "Iliac crest and iliolumbar ligament",
+    insertion: "12th rib and transverse processes of L1–L4",
+    innervation: "Anterior rami of T12–L4",
+    action: "Laterally flexes the trunk; elevates the hip (hip hike); fixes the 12th rib in respiration"
+  },
+  {
+    name: "Erector Spinae", region: "Trunk & Core", group: "Back & Spine",
+    origin: "Sacrum, iliac crest, and spinous processes of the lumbar/lower thoracic vertebrae",
+    insertion: "Ribs and transverse/spinous processes of vertebrae; mastoid process (varies by column: iliocostalis, longissimus, spinalis)",
+    innervation: "Posterior rami of spinal nerves",
+    action: "Extends and laterally flexes the vertebral column; maintains erect posture"
+  },
+  {
+    name: "Multifidus", region: "Trunk & Core", group: "Back & Spine",
+    origin: "Sacrum, ilium, and transverse processes of the vertebrae",
+    insertion: "Spinous processes of vertebrae 2–4 segments above the origin",
+    innervation: "Posterior rami of spinal nerves",
+    action: "Extends, laterally flexes, and rotates the vertebral column; key deep segmental stabilizer of the spine"
+  },
+
+  /* ===== TRUNK & CORE — Respiration ===== */
+  {
+    name: "Diaphragm", region: "Trunk & Core", group: "Respiration",
+    origin: "Xiphoid process, lower six costal cartilages, and L1–L3 vertebral bodies (crura)",
+    insertion: "Central tendon of the diaphragm",
+    innervation: "Phrenic nerve (C3–C5)",
+    action: "Primary muscle of inspiration — flattens to increase thoracic volume"
+  },
+
+  /* ===== HEAD & NECK — Neck ===== */
+  {
+    name: "Sternocleidomastoid", region: "Head & Neck", group: "Neck",
+    origin: "Manubrium of the sternum and medial third of the clavicle",
+    insertion: "Mastoid process of the temporal bone and superior nuchal line",
+    innervation: "Accessory nerve (CN XI); sensory from C2–C3",
+    action: "Unilateral: laterally flexes the neck to the same side and rotates the head to the opposite side; Bilateral: flexes the neck"
+  },
+  {
+    name: "Scalenes", region: "Head & Neck", group: "Neck",
+    origin: "Transverse processes of C2–C7",
+    insertion: "1st rib (anterior and middle scalene) and 2nd rib (posterior scalene)",
+    innervation: "Anterior rami of C3–C8",
+    action: "Elevate the ribs during forced inspiration; laterally flex the neck"
+  },
+  {
+    name: "Splenius Capitis", region: "Head & Neck", group: "Neck",
+    origin: "Nuchal ligament and spinous processes of C7–T4",
+    insertion: "Mastoid process and lateral superior nuchal line of the occipital bone",
+    innervation: "Posterior rami of middle cervical spinal nerves",
+    action: "Bilateral: extends the head and neck; Unilateral: laterally flexes and rotates the head to the same side"
+  },
+  {
+    name: "Longus Colli", region: "Head & Neck", group: "Neck",
+    origin: "Anterior bodies and transverse processes of C3–T3 vertebrae",
+    insertion: "Anterior tubercle of the atlas (C1) and bodies/transverse processes of upper cervical vertebrae",
+    innervation: "Anterior rami of C2–C6",
+    action: "Flexes the neck; deep cervical stabilizer of the cervical spine"
+  },
+
+  /* ===== HEAD & NECK — Muscles of Mastication ===== */
+  {
+    name: "Masseter", region: "Head & Neck", group: "Muscles of Mastication",
+    origin: "Zygomatic arch",
+    insertion: "Angle and lateral ramus of the mandible",
+    innervation: "Mandibular division of the trigeminal nerve (CN V3)",
+    action: "Elevates the mandible (closes the jaw) for chewing"
+  },
+  {
+    name: "Temporalis", region: "Head & Neck", group: "Muscles of Mastication",
+    origin: "Temporal fossa of the skull",
+    insertion: "Coronoid process and ramus of the mandible",
+    innervation: "Mandibular division of the trigeminal nerve (CN V3)",
+    action: "Elevates and retracts the mandible"
+  },
+  {
+    name: "Medial Pterygoid", region: "Head & Neck", group: "Muscles of Mastication",
+    origin: "Medial surface of the lateral pterygoid plate and tuberosity of the maxilla",
+    insertion: "Medial surface of the ramus and angle of the mandible",
+    innervation: "Mandibular division of the trigeminal nerve (CN V3)",
+    action: "Elevates the mandible (closes the jaw); assists protrusion and side-to-side grinding"
+  },
+  {
+    name: "Lateral Pterygoid", region: "Head & Neck", group: "Muscles of Mastication",
+    origin: "Greater wing of the sphenoid and lateral surface of the lateral pterygoid plate",
+    insertion: "Neck of the mandible (condyle) and the TMJ capsule/articular disc",
+    innervation: "Mandibular division of the trigeminal nerve (CN V3)",
+    action: "Protrudes and depresses the mandible (opens the jaw); side-to-side movement in chewing"
+  }
+];
+
+/* Human-readable labels for the four factors */
+const FACTORS = [
+  { key: "origin",      label: "Origin" },
+  { key: "insertion",   label: "Insertion" },
+  { key: "innervation", label: "Innervation" },
+  { key: "action",      label: "Muscle Action" }
+];
+
+const REGIONS = ["Upper Extremity", "Lower Extremity", "Trunk & Core", "Head & Neck"];
+
+</script>
+<script>
+/* ---------------- State ---------------- */
+let selectedFactors = new Set(FACTORS.map(f=>f.key));
+let selectedMuscles = new Set(MUSCLES.map(m=>m.name));
+let direction = "both";
+let deck = [], idx = 0;
+let correct = 0, wrong = 0, streak = 0, bestStreak = 0;
+let missedCards = [], answered = false, flipped = false;
+
+const REGION_COLORS = {
+  "Upper Extremity":"var(--r-ue)","Lower Extremity":"var(--r-le)",
+  "Trunk & Core":"var(--r-tr)","Head & Neck":"var(--r-hn)"
+};
+const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+
+/* ---------------- Setup UI ---------------- */
+function buildFactorChips(){
+  const el = document.getElementById('factorChips'); el.innerHTML='';
+  FACTORS.forEach(f=>{
+    const c = document.createElement('div');
+    c.className='chip on';
+    c.innerHTML = `<span class="tick">${CHECK_SVG}</span>${f.label}`;
+    c.onclick = ()=>{ toggleSet(selectedFactors,f.key); c.classList.toggle('on'); updateNote(); };
+    el.appendChild(c);
+  });
+}
+function buildMuscleList(){
+  const host = document.getElementById('muscleRegions'); host.innerHTML='';
+  REGIONS.forEach(region=>{
+    const regionMuscles = MUSCLES.filter(m=>m.region===region);
+    if(!regionMuscles.length) return;
+    const color = REGION_COLORS[region] || 'var(--brand)';
+    const section = document.createElement('div');
+    section.className='region-section';
+    section.style.setProperty('--rc', color);
+    section.innerHTML = `
+      <div class="region-bar">
+        <div class="title"><span class="dot"></span>${region}</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="count">${regionMuscles.length}</span>
+          <div class="mini-btns">
+            <button class="mini reg-all">All</button>
+            <button class="mini reg-none">None</button>
+          </div>
+        </div>
+      </div>`;
+    section.querySelector('.reg-all').onclick = ()=>bulk(regionMuscles,true);
+    section.querySelector('.reg-none').onclick = ()=>bulk(regionMuscles,false);
+
+    GROUPS.filter(g=>g.region===region).forEach(g=>{
+      const list = MUSCLES.filter(m=>m.group===g.name);
+      if(!list.length) return;
+      const sub = document.createElement('div');
+      sub.className='sub-group';
+      sub.innerHTML = `
+        <div class="sg-head">
+          <div class="sg-title">${g.name} <span class="count">(${list.length})</span></div>
+          <div class="mini-btns">
+            <button class="mini sg-all">All</button>
+            <button class="mini sg-none">None</button>
+          </div>
+        </div>
+        <div class="muscle-grid"></div>`;
+      const grid = sub.querySelector('.muscle-grid');
+      list.forEach(m=>{
+        const chip = document.createElement('div');
+        chip.className='m-chip on'; chip.dataset.name=m.name;
+        chip.innerHTML = `<span class="box">${CHECK_SVG}</span><span>${m.name}</span>`;
+        chip.onclick = ()=>{ toggleSet(selectedMuscles,m.name); chip.classList.toggle('on',selectedMuscles.has(m.name)); updateNote(); };
+        grid.appendChild(chip);
+      });
+      sub.querySelector('.sg-all').onclick = ()=>bulk(list,true);
+      sub.querySelector('.sg-none').onclick = ()=>bulk(list,false);
+      section.appendChild(sub);
+    });
+    host.appendChild(section);
+  });
+}
+function bulk(list,on){
+  list.forEach(m=>{
+    if(on) selectedMuscles.add(m.name); else selectedMuscles.delete(m.name);
+    document.querySelectorAll(`.m-chip[data-name="${cssEsc(m.name)}"]`).forEach(c=>c.classList.toggle('on',on));
+  });
+  updateNote();
+}
+function cssEsc(s){ return s.replace(/"/g,'\\"'); }
+function toggleSet(set,val){ set.has(val)?set.delete(val):set.add(val); }
+
+function setAllFactors(on){
+  selectedFactors = on ? new Set(FACTORS.map(f=>f.key)) : new Set();
+  document.querySelectorAll('#factorChips .chip').forEach(c=>c.classList.toggle('on',on));
+  updateNote();
+}
+function setAllMuscles(on){
+  selectedMuscles = on ? new Set(MUSCLES.map(m=>m.name)) : new Set();
+  document.querySelectorAll('.m-chip').forEach(c=>c.classList.toggle('on',on));
+  updateNote();
+}
+function setDirection(d,el){
+  direction=d;
+  document.querySelectorAll('#directionRow .radio-card').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  updateNote();
+}
+function updateNote(){
+  const m=selectedMuscles.size, f=selectedFactors.size;
+  const mult = direction==='both'?2:1;
+  document.getElementById('selNote').innerHTML =
+    `<b>${m}</b> muscle${m!==1?'s':''} &times; <b>${f}</b> fact${f!==1?'s':''} = <b>${m*f*mult}</b> cards`;
+  document.getElementById('startBtn').disabled = (m===0||f===0);
+}
+
+/* ---------------- Deck ---------------- */
+function buildDeck(){
+  const cards=[];
+  const muscles = MUSCLES.filter(m=>selectedMuscles.has(m.name));
+  const factors = FACTORS.filter(f=>selectedFactors.has(f.key));
+  muscles.forEach(m=>factors.forEach(f=>{
+    (direction==='both'?['m2f','f2m']:[direction]).forEach(dir=>cards.push({muscle:m,factor:f,dir}));
+  }));
+  return shuffle(cards);
+}
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function startSession(){ deck=buildDeck(); if(!deck.length) return; resetCounters(); show('study'); renderCard(); }
+function retryMissed(){ if(!missedCards.length){restartSame();return;} deck=shuffle(missedCards); resetCounters(); show('study'); renderCard(); }
+function restartSame(){ deck=shuffle(deck.length?deck:buildDeck()); resetCounters(); show('study'); renderCard(); }
+function resetCounters(){ idx=0;correct=0;wrong=0;streak=0;bestStreak=0;missedCards=[]; }
+
+/* ---------------- Render ---------------- */
+function renderCard(){
+  const card=deck[idx]; answered=false; flipped=false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('gotBtn').disabled=true;
+  document.getElementById('missBtn').disabled=true;
+  const g=id=>document.getElementById(id);
+  g('frontRegion').textContent = card.muscle.region;
+  if(card.dir==='m2f'){
+    g('frontTag').textContent='Muscle';
+    g('frontLabel').textContent='Recall the '+card.factor.label;
+    g('frontValue').textContent=card.muscle.name;
+    g('backTag').textContent=card.factor.label;
+    g('backLabel').textContent=card.factor.label+' of '+card.muscle.name;
+    g('backValue').textContent=card.muscle[card.factor.key];
+    g('backContext').textContent='';
+  } else {
+    g('frontTag').textContent=card.factor.label;
+    g('frontLabel').textContent='Which muscle has this '+card.factor.label+'?';
+    g('frontValue').textContent=card.muscle[card.factor.key];
+    g('backTag').textContent='Muscle';
+    g('backLabel').textContent='The muscle is';
+    g('backValue').textContent=card.muscle.name;
+    g('backContext').textContent='('+card.factor.label+' · '+card.muscle.region+')';
+  }
+  g('posN').textContent=(idx+1)+'/'+deck.length;
+  g('corrN').textContent=correct; g('wrongN').textContent=wrong; g('streakN').textContent=streak;
+  g('progBar').style.width=(idx/deck.length*100)+'%';
+}
+function flipCard(){
+  flipped=!flipped;
+  document.getElementById('flashcard').classList.toggle('flipped',flipped);
+  if(flipped && !answered){ document.getElementById('gotBtn').disabled=false; document.getElementById('missBtn').disabled=false; }
+}
+
+/* ---------------- Grade ---------------- */
+function grade(got){
+  if(answered) return;
+  if(!flipped) flipCard();
+  answered=true;
+  document.getElementById('gotBtn').disabled=true;
+  document.getElementById('missBtn').disabled=true;
+  if(got){ correct++; streak++; bestStreak=Math.max(bestStreak,streak); showFx(true); }
+  else { wrong++; streak=0; missedCards.push(deck[idx]); showFx(false); }
+  document.getElementById('corrN').textContent=correct;
+  document.getElementById('wrongN').textContent=wrong;
+  document.getElementById('streakN').textContent=streak;
+  setTimeout(()=>{ idx++; if(idx>=deck.length) finish(); else renderCard(); }, 780);
+}
+
+/* ---------------- Feedback ---------------- */
+function showFx(good){
+  const fx=document.getElementById('fx'), pop=document.getElementById('pop');
+  if(good){
+    pop.className='pop correct';
+    pop.innerHTML =
+      `<div class="badge"><span class="ring-pulse"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path class="ck" d="M20 6L9 17l-5-5"/></svg></div>
+       <div class="word">Correct</div>`;
+  } else {
+    pop.className='pop wrong';
+    pop.innerHTML =
+      `<div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6L6 18M6 6l12 12"/></svg></div>
+       <div class="word">Not quite</div>`;
+  }
+  fx.classList.add('show');
+  setTimeout(()=>fx.classList.remove('show'), 760);
+}
+
+/* ---------------- Finish ---------------- */
+function finish(){
+  show('done');
+  const total=correct+wrong, pct=total?Math.round(correct/total*100):0;
+  document.getElementById('dCorrect').textContent=correct;
+  document.getElementById('dWrong').textContent=wrong;
+  document.getElementById('dBest').textContent=bestStreak;
+  document.getElementById('dPct').textContent=pct+'%';
+  const C=465, ring=document.getElementById('ringFg');
+  ring.style.transition='none'; ring.style.strokeDashoffset=C;
+  setTimeout(()=>{ ring.style.transition='stroke-dashoffset 1s cubic-bezier(.3,.9,.3,1)'; ring.style.strokeDashoffset=C*(1-pct/100); },60);
+  let title='Session complete', msg='';
+  if(pct===100){ title='Perfect score'; msg='Every card correct — outstanding command of this material.'; }
+  else if(pct>=80){ title='Excellent work'; msg=pct+'% correct. You have a strong grasp of these muscles.'; }
+  else if(pct>=60){ title='Good progress'; msg=pct+'% correct. A focused review of the missed cards will solidify it.'; }
+  else { title='Keep building'; msg=pct+'% correct. Retry the missed cards to reinforce the gaps.'; }
+  document.getElementById('doneTitle').textContent=title;
+  document.getElementById('doneMsg').textContent=msg;
+  document.getElementById('retryBtn').style.display = wrong?'inline-flex':'none';
+}
+
+/* ---------------- Screens ---------------- */
+function show(screen){
+  document.getElementById('setup').style.display = screen==='setup'?'block':'none';
+  document.getElementById('study').classList.toggle('active',screen==='study');
+  document.getElementById('done').classList.toggle('active',screen==='done');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function backToSetup(){ show('setup'); }
+
+/* ---------------- Keyboard ---------------- */
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('study').classList.contains('active')) return;
+  if(e.code==='Space'){ e.preventDefault(); flipCard(); }
+  else if(e.key==='ArrowRight'){ if(flipped&&!answered) grade(true); }
+  else if(e.key==='ArrowLeft'){ if(flipped&&!answered) grade(false); }
+});
+
+/* ---------------- Init ---------------- */
+buildFactorChips();
+buildMuscleList();
+updateNote();
+</script>
+</body>
+</html>
