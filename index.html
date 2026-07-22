@@ -1307,6 +1307,66 @@ function makeQ(stem,correct,distr,m,type,rationale){
   const opts=shuffle([correct,...distr.slice(0,3)]); const ci=opts.indexOf(correct);
   return {stem,opts,ci,muscle:m.name,region:m.region,type,rationale};
 }
+/* ---- Functional-movement knowledge base (for applied NPTE-style items) ---- */
+const FUNCTIONAL=[
+  {m:'Heel raises (rising up onto the toes)',nerve:'tibial',region:'LE'},
+  {m:'Pushing off the ground during walking',nerve:'tibial',region:'LE'},
+  {m:'Clearing the toes during the swing phase of walking (avoiding tripping)',nerve:'deep fibular',region:'LE'},
+  {m:'Walking on the heels',nerve:'deep fibular',region:'LE'},
+  {m:'Turning the sole of the foot outward (eversion)',nerve:'superficial fibular',region:'LE'},
+  {m:'Standing up from a low chair by straightening the knee',nerve:'femoral',region:'LE'},
+  {m:'Climbing stairs (extending the knee to step up)',nerve:'femoral',region:'LE'},
+  {m:'Squeezing the thighs together / crossing one leg over the other',nerve:'obturator',region:'LE'},
+  {m:'Keeping the pelvis level while standing on one leg',nerve:'superior gluteal',region:'LE'},
+  {m:'Stepping sideways against resistance',nerve:'superior gluteal',region:'LE'},
+  {m:'Rising from a deep squat',nerve:'inferior gluteal',region:'LE'},
+  {m:'Standing up by powerfully extending the hips',nerve:'inferior gluteal',region:'LE'},
+  {m:'Bending the knee to bring the heel toward the buttock',nerve:'sciatic',region:'LE'},
+  {m:'Raising the arm out to the side to shoulder height',nerve:'axillary',region:'UE'},
+  {m:'Initiating the first part of raising the arm to the side',nerve:'suprascapular',region:'UE'},
+  {m:'Rotating the arm outward to reach behind the back',nerve:'suprascapular',region:'UE'},
+  {m:'Bending the elbow to bring a cup to the mouth',nerve:'musculocutaneous',region:'UE'},
+  {m:'Straightening the fingers and wrist to open the hand',nerve:'radial',region:'UE'},
+  {m:'Lifting the back of the hand upward (wrist extension)',nerve:'radial',region:'UE'},
+  {m:'Pinching the thumb against the fingertips',nerve:'median',region:'UE'},
+  {m:'Spreading the fingers apart / maintaining a strong grip',nerve:'ulnar',region:'UE'},
+  {m:'Shrugging the shoulders upward',nerve:'accessory',region:'UE'},
+  {m:'Turning the head to the opposite side',nerve:'accessory',region:'UE'},
+  {m:'Pushing a heavy door forward (reaching / scapular protraction)',nerve:'long thoracic',region:'UE'},
+  {m:'Pulling the body upward in a chin-up',nerve:'thoracodorsal',region:'UE'},
+  {m:'Squeezing the shoulder blades together',nerve:'dorsal scapular',region:'UE'},
+  {m:'Taking a deep breath in',nerve:'phrenic',region:'trunk'},
+  {m:'Chewing food / clenching the jaw',nerve:'trigeminal',region:'head'},
+  /* distractor-only everyday tasks not driven by a single peripheral nerve in this set */
+  {m:'Rolling over in bed',nerve:'na',region:'trunk'},
+  {m:'Sitting up from lying down',nerve:'na',region:'trunk'},
+  {m:'Bending over to tie the shoes',nerve:'na',region:'trunk'}
+];
+function nerveFamily(s){ s=(s||'').toLowerCase();
+  if(s.includes('division of')&&s.includes('sciatic')) return 'sciatic';
+  if(s.includes('deep fibular')||s.includes('deep peroneal')) return 'deep fibular';
+  if(s.includes('superficial fibular')||s.includes('superficial peroneal')) return 'superficial fibular';
+  if(s.includes('tibial')) return 'tibial';
+  if(s.includes('femoral')) return 'femoral';
+  if(s.includes('obturator internus')) return 'other';
+  if(s.includes('obturator')) return 'obturator';
+  if(s.includes('superior gluteal')) return 'superior gluteal';
+  if(s.includes('inferior gluteal')) return 'inferior gluteal';
+  if(s.includes('posterior interosseous')||s.includes('deep branch of the radial')||s.includes('radial')) return 'radial';
+  if(s.includes('anterior interosseous')||s.includes('median')) return 'median';
+  if(s.includes('ulnar')) return 'ulnar';
+  if(s.includes('axillary')) return 'axillary';
+  if(s.includes('musculocutaneous')) return 'musculocutaneous';
+  if(s.includes('suprascapular')) return 'suprascapular';
+  if(s.includes('accessory')) return 'accessory';
+  if(s.includes('long thoracic')) return 'long thoracic';
+  if(s.includes('thoracodorsal')) return 'thoracodorsal';
+  if(s.includes('dorsal scapular')) return 'dorsal scapular';
+  if(s.includes('phrenic')) return 'phrenic';
+  if(s.includes('trigeminal')) return 'trigeminal';
+  return 'other';
+}
+const NERVE_LABEL={tibial:'tibial nerve','deep fibular':'deep fibular (deep peroneal) nerve','superficial fibular':'superficial fibular (peroneal) nerve',femoral:'femoral nerve',obturator:'obturator nerve','superior gluteal':'superior gluteal nerve','inferior gluteal':'inferior gluteal nerve',sciatic:'sciatic nerve',axillary:'axillary nerve',suprascapular:'suprascapular nerve',musculocutaneous:'musculocutaneous nerve',radial:'radial nerve',median:'median nerve',ulnar:'ulnar nerve',accessory:'accessory nerve (CN XI)','long thoracic':'long thoracic nerve',thoracodorsal:'thoracodorsal nerve','dorsal scapular':'dorsal scapular nerve',phrenic:'phrenic nerve',trigeminal:'trigeminal nerve (CN V3)'};
 function buildQuestionsFor(muscles){
   const q=[]; const push=x=>{ if(x) q.push(x); };
   const grp=(key,m)=>uniqVals(MUSCLES.filter(x=>x.group===m.group&&x.name!==m.name),key);
@@ -1350,6 +1410,17 @@ function buildQuestionsFor(muscles){
       push(makeQ(`Which muscle is innervated by the same nerve as the ${m.name}?`,
         correctShare, tieredNames([diffN],correctShare,3), m,'Innervation',
         `Both the ${m.name} and ${correctShare} are innervated by the ${m.innervation}.`));
+    }
+    /* 8. Functional — nerve lesion mapped to the everyday movement it impairs */
+    const fam=nerveFamily(m.innervation);
+    const funcCorrects=FUNCTIONAL.filter(f=>f.nerve===fam);
+    if(funcCorrects.length){
+      const cor=funcCorrects[Math.floor(Math.random()*funcCorrects.length)];
+      const sameReg=FUNCTIONAL.filter(f=>f.nerve!==fam&&f.region===cor.region).map(f=>f.m);
+      const anyOther=FUNCTIONAL.filter(f=>f.nerve!==fam).map(f=>f.m);
+      push(makeQ(`A patient is referred to physical therapy with a ${NERVE_LABEL[fam]} lesion. Which movement will the patient report the MOST difficulty performing?`,
+        cor.m, tieredNames([sameReg,anyOther],cor.m,3), m,'Functional',
+        `A ${NERVE_LABEL[fam]} lesion weakens the muscles that produce this movement, so "${cor.m.toLowerCase()}" is most impaired. The other options are driven by different nerves.`));
     }
   });
   return q;
